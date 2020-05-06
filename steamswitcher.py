@@ -119,6 +119,7 @@ class SteamSwitcher:
           print("ERROR: Insufficient permission to set AutoLoginUser")
       elif self.system_os == "Linux":
         self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.AutoLoginUser", login_name)
+        self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.SkinV5", "" if user["steam_skin"] == "default" else user["steam_skin"])
         self.linux_registry.write_file(self.registry_path)
     else:
         raise ValueError

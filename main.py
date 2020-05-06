@@ -257,7 +257,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def steam_login(self, item):
     self.switcher.kill_steam()
-    self.switcher.set_autologin_account(item.data(0))
+    self.switcher.set_autologin_account(item.data(3))
     self.switcher.start_steam()
     if self.switcher.changer_settings["behavior_after_login"] == "nothing":
       pass
