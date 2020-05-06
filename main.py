@@ -63,7 +63,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     set_size_medium.setShortcut("Ctrl+2")
     set_size_small.setShortcut("Ctrl+3")
 
-
     self.add_button = QPushButton("Add account")
     self.edit_button = QPushButton("Edit account")
     self.edit_button.setDisabled(1)
@@ -106,13 +105,16 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   def show_rightclick_menu(self, item):
     right_menu = QMenu(self.accounts_list)
+
+    selected = self.accounts_list.currentItem().data(0)
+
     login_action = QAction("Login", self)
     delete_action = QAction("Delete", self)
     open_profile_action = QAction("Steam profile", self)
 
     login_action.triggered.connect(self.steam_login)
-    delete_action.triggered.connect(lambda: self.remove_account(self.accounts_list.currentItem().data(0)))
-    open_profile_action.triggered.connect(lambda: self.open_steam_profile(self.accounts_list.currentItem().data(0)))
+    delete_action.triggered.connect(lambda: self.remove_account(selected))
+    open_profile_action.triggered.connect(lambda: self.open_steam_profile(selected))
 
     delete_action.setIcon(QIcon.fromTheme("delete"))
 
@@ -120,6 +122,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu.addAction(delete_action)
     right_menu.addSeparator()
     right_menu.addAction(open_profile_action)
+
+    if self.switcher.changer_settings["users"][selected]["steam_user"]["profileurl"]:
+      open_profile_action.setDisabled(True)
 
     right_menu.exec_(QCursor.pos())
 
@@ -163,16 +168,16 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def edit_button_enabled(self):
     if self.accounts_list.selectedItems():
-      self.edit_button.setEnabled(1)
+      self.edit_button.setEnabled(True)
     else:
-      self.edit_button.setEnabled(0)
+      self.edit_button.setEnabled(False)
 
   @Slot()
   def submit_enabled(self, item):
     if len(item) > 3:
-      self.submit_button.setEnabled(1)
+      self.submit_button.setEnabled(True)
     else:
-      self.submit_button.setDisabled(1)
+      self.submit_button.setEnabled(False)
 
   def save_account(self, new_account, account_name, old_account_name, comment, steam_skin):
     self.switcher.add_new_account(account_name, "" if new_account else old_account_name, comment, steam_skin)
@@ -206,7 +211,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     if new_account:
       self.account_dialog_window.setWindowTitle("Add account")
       self.submit_button = QPushButton("Add")
-      self.submit_button.setDisabled(1)
+      self.submit_button.setDisabled(True)
     else:
       selected_account_name = self.accounts_list.currentItem().data(0)
 
@@ -262,8 +267,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     sorted_users = sorted(self.switcher.changer_settings["users"].items(), key=lambda a: a[1]["display_order"])
     for login_name, account in sorted_users:
       item = QListWidgetItem()
-      item.setText(login_name)
-      item.setData(1, account)
+      item.setText(account["steam_user"]["personaname"] if account["steam_user"]["personaname"] else login_name)
+      item.setData(3, login_name)
+      item.setData(5, account)
       item.setIcon(QIcon(self.switcher.get_steam_avatars(login_name)))
       self.accounts_list.addItem(item)
     self.switcher.get_steamids()

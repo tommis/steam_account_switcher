@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 A GUI program to quickly switch between many steam accounts for ~~Linux~~ (coming) and Windows.
 """
@@ -63,7 +64,7 @@ class SteamSwitcher:
     except FileNotFoundError:
       print("Settings file not found, creating...")
       empty_settings = {
-        "behavior_after_login": "close",
+        "behavior_after_login": "minimize",
         "theme": "dark",
         "steam_api_key": "",
         "users": {}
