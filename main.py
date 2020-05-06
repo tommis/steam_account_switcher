@@ -130,7 +130,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu.addSeparator()
     right_menu.addAction(open_profile_action)
 
-    if not account["steam_user"]["profileurl"]:
+    if not account["steam_user"].get("profileurl"):
       open_profile_action.setDisabled(True)
 
     right_menu.exec_(QCursor.pos())
@@ -272,13 +272,14 @@ class SteamAccountSwitcherGui(QMainWindow):
   def load_accounts(self):
     self.accounts_list.clear()
     sorted_users = sorted(self.switcher.changer_settings["users"].items(), key=lambda a: a[1]["display_order"])
+    avatars = self.switcher.get_steam_avatars(list(self.switcher.changer_settings["users"].keys()))
     for login_name, account in sorted_users:
       item = QListWidgetItem()
-      item_title = account["steam_user"]["personaname"] + " " + account["comment"] if account["steam_user"]["personaname"] else login_name
+      item_title = account["steam_user"].get("personname", login_name)
       item.setText(item_title)
       item.setData(3, login_name)
       item.setData(5, account)
-      item.setIcon(QIcon(self.switcher.get_steam_avatars(login_name)))
+      item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     self.switcher.get_steamids()
 

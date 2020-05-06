@@ -59,8 +59,8 @@ class SteamSwitcher:
     self.changer_path = os.getcwd()
     self.changer_settings_file = os.path.join(self.changer_path, "changer.json")
     try:
-      with open(self.changer_settings_file, encoding='utf-8') as file:
-        return json.load(file)
+      with open(self.changer_settings_file, encoding='utf-8') as settings_file:
+        return json.load(settings_file)
     except FileNotFoundError:
       print("Settings file not found, creating...")
       empty_settings = {
@@ -71,6 +71,7 @@ class SteamSwitcher:
       }
       with open(self.changer_settings_file, 'w+', encoding='utf-8') as settings_file:
         json.dump(empty_settings, settings_file, indent=2, ensure_ascii=False)
+      return self._load_settings()
     except json.JSONDecodeError:
       print("Settings file is corrupted")
 
@@ -169,27 +170,32 @@ class SteamSwitcher:
     except FileNotFoundError:
       print("Settings file not found")
 
-  def get_steam_avatars(self, login_name, size="full") -> str:
-    if login_name in self.changer_settings["users"]:
-      try:
-        img_url = self.changer_settings["users"][login_name]["steam_user"]["avatarfull"]
-        img_filename = img_url.split("/")[-1]
-        avatar_path = os.path.join(self.changer_path, "avatars", img_filename)
-        if os.path.isfile(avatar_path):
-          return avatar_path
+  def get_steam_avatars(self, *login_names, **kwargs) -> dict:
+    r = {}
+    for login_name in login_names[0]:
+      if login_name in self.changer_settings["users"]:
+        try:
+          img_url = self.changer_settings["users"][login_name]["steam_user"].get("avatarfull")
+          img_filename = img_url.split("/")[-1] if img_url is not None else "avatar.png"
+          avatar_path = os.path.join(self.changer_path, "avatars", img_filename)
+          if os.path.isfile(avatar_path):
+            r[login_name] = avatar_path
+            continue
 
-        response = requests.get(img_url)
-        if response.status_code == 200:
-          with open(avatar_path, "wb") as img_file:
-            img_file.write(response.content)
-          return avatar_path
-        else:
-          print("Avatar download error")
-          return os.path.join(self.changer_path, "avatars/avatar.png")
-      except KeyError:
-        print("EEROREREQWRJKOJQAWJERKOJAOWEKSRJ")
-    else:
-      return os.path.join(self.changer_path, "avatars/avatar.png")
+          response = requests.get(img_url)
+          if response.status_code == 200:
+            with open(avatar_path, "wb") as img_file:
+              img_file.write(response.content)
+            r[login_name] = avatar_path
+            continue
+          else:
+            print("Avatar download error")
+            r[login_name] = os.path.join(self.changer_path, "avatars/avatar.png")
+        except KeyError:
+          print("EEROREREQWRJKOJQAWJERKOJAOWEKSRJ")
+      else:
+        r[login_name] = os.path.join(self.changer_path, "avatars/avatar.png")
+    return r
 
   def sync_steam_autologin_accounts(self):
     loginusers_path = os.path.join(self.steam_dir, "config/loginusers.vdf")
@@ -222,12 +228,15 @@ class SteamSwitcher:
 if __name__ == "__main__":
     s = SteamSwitcher()
 
-    s.add_new_account("tommi")
+    #print(s.get_steam_avatars(*["tommisas", "tommisa"]))
+    print(s.get_steam_avatars("sukamanblyat", "pentti_makipetaja_mahonen"))
 
-    s.get_steamids()
-    s.set_autologin_account("tommisa")
+    #s.add_new_account("tommi")
+
+    #s.get_steamids()
+    #s.set_autologin_account("tommisa")
 
     #s.sync_steam_autologin_accounts()
 
     #s.kill_steam()
-    s.start_steam()
+    #s.start_steam()
