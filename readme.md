@@ -4,8 +4,9 @@ A GUI program to quickly switch between many steam accounts for ~~Linux~~ (comin
 
 Your login info is stored in steam installation directory in the files starting with ssfn so this program doesn't actually know your password.
 
-
 ## GUI
+
+![screenshot](screenshot.png)
 
 Run with `python main.py`
 
