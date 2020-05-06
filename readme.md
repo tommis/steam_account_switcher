@@ -7,7 +7,7 @@ Your login info is stored in steam installation directory in the files starting 
 
 ## GUI
 
-Run with `pyhton main.py`
+Run with `python main.py`
 
 ## Command line usage
 
