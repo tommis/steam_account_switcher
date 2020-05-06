@@ -13,7 +13,6 @@ from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, 
 from steamswitcher import SteamSwitcher
 
 
-# noinspection PyCallingNonCallable
 class SteamAccountSwitcherGui(QMainWindow):
   account_dialog_window: QDialog
   submit_button: QPushButton
@@ -106,30 +105,36 @@ class SteamAccountSwitcherGui(QMainWindow):
   def show_rightclick_menu(self, item):
     right_menu = QMenu(self.accounts_list)
 
-    selected = self.accounts_list.currentItem().data(0)
+    selected = self.accounts_list.currentItem()
+    login_name = selected.data(3)
+    account = selected.data(5)
 
     login_action = QAction("Login", self)
+    edit_action = QAction("Edit", self)
     delete_action = QAction("Delete", self)
     open_profile_action = QAction("Steam profile", self)
 
     login_action.triggered.connect(self.steam_login)
-    delete_action.triggered.connect(lambda: self.remove_account(selected))
-    open_profile_action.triggered.connect(lambda: self.open_steam_profile(selected))
+    edit_action.triggered.connect(lambda: self.account_dialog())
+    delete_action.triggered.connect(lambda: self.remove_account(login_name))
+    open_profile_action.triggered.connect(lambda: self.open_steam_profile(account))
 
-    delete_action.setIcon(QIcon.fromTheme("delete"))
+    delete_action.setIcon(QIcon.fromTheme("edit-delete"))
+    open_profile_action.setIcon(QIcon.fromTheme("document-open"))
 
     right_menu.addAction(login_action)
+    right_menu.addAction(edit_action)
     right_menu.addAction(delete_action)
     right_menu.addSeparator()
     right_menu.addAction(open_profile_action)
 
-    if self.switcher.changer_settings["users"][selected]["steam_user"]["profileurl"]:
+    if not account["steam_user"]["profileurl"]:
       open_profile_action.setDisabled(True)
 
     right_menu.exec_(QCursor.pos())
 
-  def open_steam_profile(self, login_name):
-    webbrowser.open(self.switcher.changer_settings["users"][login_name]["steam_user"]["profileurl"])
+  def open_steam_profile(self, account):
+    webbrowser.open(account["steam_user"]["profileurl"])
 
   @Slot()
   def settings_dialog(self):
@@ -147,7 +152,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   def about_dialog(self):
     dialog = QDialog(self)
     dialog.setWindowTitle("About")
-    dialog.setFixedSize(220, 70)
+    dialog.setFixedSize(220, 60)
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
@@ -213,12 +218,12 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
-      selected_account_name = self.accounts_list.currentItem().data(0)
+      login_name = self.accounts_list.currentItem().data(3)
+      account = self.accounts_list.currentItem().data(5)
 
-      account = self.switcher.changer_settings["users"][selected_account_name]
-      self.account_dialog_window.setWindowTitle("Edit account {0}".format(selected_account_name))
+      self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
-      account_name_edit.setText(selected_account_name)
+      account_name_edit.setText(login_name)
       comment_edit.setText(account["comment"])
       steam_skin_select_index = steam_skin_select.findText(account["steam_skin"])
       if steam_skin_select_index != -1:
@@ -237,7 +242,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     dialog_layout.addWidget(steam_skin_select)
 
     self.submit_button.clicked.connect(lambda: self.save_account(
-      new_account, account_name_edit.text(), "" if new_account else selected_account_name,
+      new_account, account_name_edit.text(), "" if new_account else login_name,
       comment_edit.text(), steam_skin_select.currentText()))
     close_button.clicked.connect(self.account_dialog_window.close)
 
@@ -267,7 +272,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     sorted_users = sorted(self.switcher.changer_settings["users"].items(), key=lambda a: a[1]["display_order"])
     for login_name, account in sorted_users:
       item = QListWidgetItem()
-      item.setText(account["steam_user"]["personaname"] if account["steam_user"]["personaname"] else login_name)
+      item_title = account["steam_user"]["personaname"] + " " + account["comment"] if account["steam_user"]["personaname"] else login_name
+      item.setText(item_title)
       item.setData(3, login_name)
       item.setData(5, account)
       item.setIcon(QIcon(self.switcher.get_steam_avatars(login_name)))
