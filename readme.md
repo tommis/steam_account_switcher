@@ -1,6 +1,6 @@
 # Steam account switcher
 
-A GUI program to quickly switch between many steam accounts for ~~Linux~~ (coming) and Windows.
+A GUI program to quickly switch between many steam accounts for Linux and Windows.
 
 Your login info is stored in steam installation directory in the files starting with ssfn so this program doesn't actually know your password.
 

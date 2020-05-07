@@ -101,16 +101,21 @@ class SteamSwitcher:
     elif self.system_os == "Linux":
       subprocess.Popen("/usr/bin/steam-runtime")
 
-  def get_steamapi_usersummary(self, uid: str) -> str:
+  def get_steamapi_usersummary(self, uid: str) -> dict:
     api_key = self.changer_settings["steam_api_key"]
+    if not api_key:
+      raise Exception("No steam_api_key not defined")
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
-    response_json = requests.get(api_url, params={"key": api_key, "steamids": uid}).json()
-    return response_json["response"]["players"][0]
+    response = requests.get(api_url, params={"key": api_key, "steamids": uid})
+    if response.status_code == 200:
+      return response.json()["response"]["players"][0]
+    else:
+      return {}
 
 
   def set_autologin_account(self, login_name):
     if login_name in self.changer_settings["users"]:
-      #self.sync_steam_autologin_accounts()
+      self.sync_steam_autologin_accounts()
       user = self.changer_settings["users"][login_name]
       if self.system_os == "Windows":
         try:
@@ -204,7 +209,7 @@ class SteamSwitcher:
       try:
         users["users"][login_name] = {
           "AccountName": login_name,
-          "PersonaName": user["steam_user"]["personaname"],
+          "PersonaName": user["steam_user"].get("personaname", ""),
           "RememberPassword": "1",
           "mostrecent": "0",
           "Timestamp": str(time.time()),
@@ -228,13 +233,11 @@ class SteamSwitcher:
 if __name__ == "__main__":
     s = SteamSwitcher()
 
-    #print(s.get_steam_avatars(*["tommisas", "tommisa"]))
-    print(s.get_steam_avatars("sukamanblyat", "pentti_makipetaja_mahonen"))
 
     #s.add_new_account("tommi")
 
     #s.get_steamids()
-    #s.set_autologin_account("tommisa")
+    #s.set_autologin_account("")
 
     #s.sync_steam_autologin_accounts()
 
