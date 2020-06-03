@@ -107,7 +107,7 @@ class SteamSwitcher:
       raise Exception("No steam_api_key not defined")
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
     response = requests.get(api_url, params={"key": api_key, "steamids": uid})
-    if response.status_code == 200:
+    if response.status_code == 200 and response.json()["response"]["players"]:
       return response.json()["response"]["players"][0]
     else:
       return {}
