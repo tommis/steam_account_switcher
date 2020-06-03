@@ -109,7 +109,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     selected = self.accounts_list.currentItem()
     login_name = selected.data(3)
-    account = selected.data(5)
+    account = self.switcher.changer_settings["users"].get(login_name)
 
     login_action = QAction("Login", self)
     edit_action = QAction("Edit", self)
@@ -275,10 +275,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     avatars = self.switcher.get_steam_avatars(list(self.switcher.changer_settings["users"].keys()))
     for login_name, account in sorted_users:
       item = QListWidgetItem()
-      item_title = account["steam_user"].get("personname", login_name)
-      item.setText(item_title)
+      item.setData(0, account["steam_user"].get("personaname", login_name))
       item.setData(3, login_name)
-      item.setData(5, account)
+      item.setData(5, "Login with user {0}".format(login_name))
       item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     self.switcher.get_steamids()
