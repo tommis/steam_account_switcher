@@ -277,7 +277,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       item = QListWidgetItem()
       item.setData(0, account["steam_user"].get("personaname", login_name))
       item.setData(3, login_name)
-      item.setData(5, "Login with user {0}".format(login_name))
+      item.setData(5, account["comment"])
       item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     self.switcher.get_steamids()
