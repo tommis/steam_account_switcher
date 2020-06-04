@@ -1,3 +1,4 @@
 PySide2>=5.14.2.1
 PyVDF>=2.0.0
 requests>=2.23.0
+flake8>=3.7.9
