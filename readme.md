@@ -1,6 +1,6 @@
 # Steam account switcher
 
-![.github/workflows/pythonapp.yml](https://github.com/tommis/steam_account_switcher/workflows/.github/workflows/pythonapp.yml/badge.svg)
+![Steam account switcher](https://github.com/tommis/steam_account_switcher/workflows/Steam%20account%20switcher/badge.svg?branch=master)
 
 A GUI program to quickly switch between many steam accounts for Linux and Windows.
 
