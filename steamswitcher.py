@@ -66,6 +66,7 @@ class SteamSwitcher:
       empty_settings = {
         "behavior_after_login": "minimize",
         "theme": "dark",
+        "display_size": "small",
         "steam_api_key": "",
         "users": {}
       }

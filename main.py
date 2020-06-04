@@ -10,7 +10,7 @@ from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QVBoxLayout, QWidget, QListWidget, QDialog, QTextEdit, QListWidgetItem, QGroupBox,
-                               QComboBox, QMenu, QAbstractItemView)
+                               QComboBox, QMenu, QAbstractItemView, QListView)
 
 from steamswitcher import SteamSwitcher
 
@@ -166,7 +166,9 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def set_size(self, size):
-    raise NotImplementedError("Set size {0}".format(size))
+    print("Set size {0}".format(size))
+    self.switcher.changer_settings["display_size"] = size
+    self.load_accounts()
 
   @Slot()
   def account_reordered(self, r="asdasd"):
@@ -273,12 +275,18 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.accounts_list.clear()
     sorted_users = sorted(self.switcher.changer_settings["users"].items(), key=lambda a: a[1]["display_order"])
     avatars = self.switcher.get_steam_avatars(list(self.switcher.changer_settings["users"].keys()))
+    self.insert_accounts(sorted_users, avatars)
+
+  def insert_accounts(self, sorted_users, avatars):
+    size = self.switcher.changer_settings.get("display_size",  "small")
     for login_name, account in sorted_users:
-      item = QListWidgetItem()
-      item.setData(0, account["steam_user"].get("personaname", login_name))
-      item.setData(3, login_name)
-      item.setData(5, account["comment"])
-      item.setIcon(QIcon(avatars.get(login_name)))
+      #if size == "small": # TODO: figure out how to create visually medium and large list
+      if size:
+        item = QListWidgetItem()
+        item.setData(0, account["steam_user"].get("personaname", login_name))
+        item.setData(3, login_name)
+        item.setData(5, account["comment"])
+        item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     self.switcher.get_steamids()
 
