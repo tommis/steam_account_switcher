@@ -14,9 +14,7 @@ Run with `python main.py`
 
 ## Command line usage
 
-Run with
-
-`python main.py`
+Syntax `python main.py <options>`
 
 Flags  (TODO)
 
@@ -42,6 +40,8 @@ Flags  (TODO)
 - `"theme"` values:
     - *dark* (default)
     - *light*
+- `"show_avatars"` boolean true by default
+- `"use_systemtray"` boolean true by default
 - `"steam_api_key"` used for getting steam avatars and profile pages. Get yours from [steam](https://steamcommunity.com/dev/apikey)
 - `"users"` object
     - `login_name` the unique name you use for login

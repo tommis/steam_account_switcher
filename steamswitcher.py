@@ -68,6 +68,8 @@ class SteamSwitcher:
         "theme": "dark",
         "display_size": "small",
         "steam_api_key": "",
+        "show_avatars": True,
+        "use_systemtray": True,
         "users": {}
       }
       with open(self.changer_settings_file, 'w+', encoding='utf-8') as settings_file:

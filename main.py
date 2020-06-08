@@ -10,7 +10,7 @@ from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QVBoxLayout, QWidget, QListWidget, QDialog, QTextEdit, QListWidgetItem, QGroupBox,
-                               QComboBox, QMenu, QAbstractItemView, QListView)
+                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon)
 
 from steamswitcher import SteamSwitcher
 
@@ -18,6 +18,8 @@ from steamswitcher import SteamSwitcher
 class SteamAccountSwitcherGui(QMainWindow):
   account_dialog_window: QDialog
   submit_button: QPushButton
+  tray_icon: QSystemTrayIcon
+  tray_menu: QMenu
 
   def __init__(self):
     QMainWindow.__init__(self)
@@ -37,6 +39,8 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     settings_action = QAction("Settings", self)
     settings_action.triggered.connect(self.settings_dialog)
+    refresh_action = QAction("refresh", self)
+    refresh_action.triggered.connect(self.steamapi_refresh)
     open_skinsdir_action = QAction("Skins dir", self)
     open_skinsdir_action.triggered.connect(self.open_skinsdir)
     about_action = QAction("About", self)
@@ -46,6 +50,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     exit_action.triggered.connect(self.exit_app)
 
     self.file_menu.addAction(settings_action)
+    self.file_menu.addAction(refresh_action)
     self.file_menu.addAction(open_skinsdir_action)
     self.file_menu.addAction(about_action)
     self.file_menu.addAction(exit_action)
@@ -96,6 +101,10 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
     self.accounts_list.customContextMenuRequested.connect(self.show_rightclick_menu)
 
+    # System tray
+    if self.switcher.changer_settings.get("use_systemtray", True):
+      self.systemtray(self.main_widget)
+
     self.setCentralWidget(self.main_widget)
 
     self.show()
@@ -136,7 +145,11 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu.exec_(QCursor.pos())
 
   def open_steam_profile(self, account):
-    webbrowser.open(account["steam_user"]["profileurl"])
+    webbrowser.open(account["steam_user"].get("profileurl"))
+
+  @Slot()
+  def steamapi_refresh(self):
+    self.switcher.get_steamids()
 
   @Slot()
   def settings_dialog(self):
@@ -149,6 +162,15 @@ class SteamAccountSwitcherGui(QMainWindow):
         os.startfile(self.switcher.skins_dir)
     elif self.switcher.system_os == "Linux":
         subprocess.Popen(["xdg-open", self.switcher.skins_dir])
+
+  def systemtray(self, parent=None):
+    self.tray_icon = QSystemTrayIcon(QIcon("logo.png"), parent)
+    self.tray_menu = QMenu(parent)
+    self.tray_menu.addAction("Show", self.show)
+    self.tray_menu.addSeparator()
+    self.tray_menu.addAction("Exit", self.exit_app)
+    self.tray_icon.setContextMenu(self.tray_menu)
+    self.tray_icon.show()
 
   @Slot()
   def about_dialog(self):
@@ -263,13 +285,11 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.switcher.kill_steam()
     self.switcher.set_autologin_account(item.data(3))
     self.switcher.start_steam()
-    if self.switcher.changer_settings["behavior_after_login"] == "nothing":
-      pass
-    elif self.switcher.changer_settings["behavior_after_login"] == "close":
-      QApplication.quit()
+    if self.switcher.changer_settings["behavior_after_login"] == "close":
+      self.exit_app()
     elif self.switcher.changer_settings["behavior_after_login"] == "minimize":
-      raise NotImplementedError("Find a way to minimize window")
-      #QWindow.setVisible(QWindow.Minimized)
+      self.hide()
+
 
   def load_accounts(self):
     self.accounts_list.clear()
@@ -288,7 +308,7 @@ class SteamAccountSwitcherGui(QMainWindow):
         item.setData(5, account["comment"])
         item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
-    self.switcher.get_steamids()
+    #self.switcher.get_steamids()
 
   def after_steam_login(self):
     """
