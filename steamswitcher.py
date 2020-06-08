@@ -76,6 +76,7 @@ class SteamSwitcher:
     except json.JSONDecodeError:
       print("Settings file is corrupted")
 
+
   def kill_steam(self):
     if self.system_os == "Linux":
       try:
