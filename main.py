@@ -5,8 +5,7 @@ import subprocess
 import sys
 import webbrowser
 import platform
-if platform.system() == "Windows":
-  import ctypes
+import logging
 
 from PySide2.QtCore import Slot
 from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt
@@ -34,6 +33,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     switcher_logo = QIcon("logo.png")
     self.setWindowIcon(switcher_logo)
     if platform.system() == "Windows":
+      import ctypes
       win_appid = 'github.tommis.steam_account_switcher.alpha'
       ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(win_appid)
 
@@ -108,6 +108,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     #self.accounts_list.dragMoveEvent.connect()
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
     self.accounts_list.customContextMenuRequested.connect(self.show_rightclick_menu)
+    self.accounts_list.itemChanged.connect(self.account_reordered)
 
     # System tray
     if self.switcher.changer_settings.get("use_systemtray", True):
@@ -125,7 +126,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu = QMenu(self.accounts_list)
 
     selected = self.accounts_list.currentItem()
-    login_name = selected.data(3)
+    login_name = selected.data(2)
     account = self.switcher.changer_settings["users"].get(login_name)
 
     login_action = QAction("Login", self)
@@ -161,7 +162,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def settings_dialog(self):
-    print("Opened settings")
+    logging.info("Opened settings")
     raise NotImplementedError("settings not done yet")
 
   @Slot()
@@ -252,8 +253,8 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
-      login_name = self.accounts_list.currentItem().data(3)
-      account = self.accounts_list.currentItem().data(5)
+      login_name = self.accounts_list.currentItem().data(2)
+      account = self.accounts_list.currentItem().data(3)
 
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
@@ -291,7 +292,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def steam_login(self, item):
     self.switcher.kill_steam()
-    self.switcher.set_autologin_account(item.data(3))
+    self.switcher.set_autologin_account(item.data(2))
     self.switcher.start_steam()
     if self.switcher.changer_settings["behavior_after_login"] == "close":
       self.exit_app()
@@ -312,9 +313,11 @@ class SteamAccountSwitcherGui(QMainWindow):
       if size:
         item = QListWidgetItem()
         item.setData(0, account["steam_user"].get("personaname", login_name))
-        item.setData(3, login_name)
-        item.setData(5, account["comment"])
-        item.setIcon(QIcon(avatars.get(login_name)))
+        item.setData(2, login_name)
+        item.setData(3, account)
+        item.setData(5, account.get("comment"))
+        if self.switcher.changer_settings.get("show_avatars"):
+          item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 
