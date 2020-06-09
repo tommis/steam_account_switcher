@@ -54,10 +54,13 @@ class SteamAccountSwitcherGui(QMainWindow):
     exit_action.setShortcut("Ctrl+Q")
     exit_action.triggered.connect(self.exit_app)
 
+    refresh_action.setShortcut("F5")
+
     self.file_menu.addAction(settings_action)
     self.file_menu.addAction(refresh_action)
     self.file_menu.addAction(open_skinsdir_action)
     self.file_menu.addAction(about_action)
+    self.file_menu.addSeparator()
     self.file_menu.addAction(exit_action)
 
     set_size_large = QAction("Large", self)
@@ -171,7 +174,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   def systemtray(self, parent=None):
     self.tray_icon = QSystemTrayIcon(QIcon("logo.png"), parent)
     self.tray_menu = QMenu(parent)
-    self.tray_menu.addAction("Show", self.show)
+    self.tray_menu.addAction("Open", self.show)
     self.tray_menu.addSeparator()
     self.tray_menu.addAction("Exit", self.exit_app)
     self.tray_icon.setContextMenu(self.tray_menu)
@@ -255,7 +258,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
       account_name_edit.setText(login_name)
-      comment_edit.setText(account["comment"])
+      comment_edit.setText(account.get("comment"))
       steam_skin_select_index = steam_skin_select.findText(account["steam_skin"])
       if steam_skin_select_index != -1:
         steam_skin_select.setCurrentIndex(steam_skin_select_index)
