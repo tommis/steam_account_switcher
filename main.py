@@ -4,6 +4,9 @@ import os
 import subprocess
 import sys
 import webbrowser
+import platform
+if platform.system() == "Windows":
+  import ctypes
 
 from PySide2.QtCore import Slot
 from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt
@@ -30,7 +33,9 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     switcher_logo = QIcon("logo.png")
     self.setWindowIcon(switcher_logo)
-
+    if platform.system() == "Windows":
+      win_appid = 'github.tommis.steam_account_switcher.alpha'
+      ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(win_appid)
 
     # Menu
     self.menu = self.menuBar()
