@@ -111,7 +111,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.accounts_list.itemChanged.connect(self.account_reordered)
 
     # System tray
-    if self.switcher.changer_settings.get("use_systemtray", True):
+    if self.switcher.changer_settings.get("use_systemtray"):
       self.systemtray(self.main_widget)
 
     self.setCentralWidget(self.main_widget)
@@ -134,7 +134,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     delete_action = QAction("Delete", self)
     open_profile_action = QAction("Steam profile", self)
 
-    login_action.triggered.connect(self.steam_login)
+    login_action.triggered.connect(lambda: self.steam_login(selected))
     edit_action.triggered.connect(lambda: self.account_dialog())
     delete_action.triggered.connect(lambda: self.remove_account(login_name))
     open_profile_action.triggered.connect(lambda: self.open_steam_profile(account))
