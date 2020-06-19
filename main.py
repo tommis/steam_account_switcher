@@ -253,14 +253,17 @@ class SteamAccountSwitcherGui(QMainWindow):
     steam_skin_select = QComboBox()
     steam_skin_select.addItems(self.switcher.steam_skins)
 
-    login_name = self.accounts_list.currentItem().data(5)
-    user = self.switcher.settings["users"].get(self.accounts_list.currentItem().data(5), {})
+    try:
+      user = self.switcher.settings["users"].get(self.accounts_list.currentItem().data(5), {})
+    except Exception:
+      user = {}
 
     if new_account:
       self.account_dialog_window.setWindowTitle("Add account")
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
+      login_name = self.accounts_list.currentItem().data(5)
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
       account_name_edit.setText(login_name)
@@ -283,7 +286,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     user["steam_skin"] = steam_skin_select.currentText()
 
-    self.submit_button.clicked.connect(lambda: self.save_account(login_name, user))
+    self.submit_button.clicked.connect(lambda: self.save_account(account_name_edit.text(), user))
     close_button.clicked.connect(self.account_dialog_window.close)
 
     buttons = QHBoxLayout()

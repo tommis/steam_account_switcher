@@ -155,15 +155,15 @@ class SteamSwitcher:
 
   def add_account(self, login_name, user):
     user = {
-      "comment": user["comment"],
+      "comment": user.get("comment", ""),
       "display_order": len(self.settings["users"]) + 1,
-      "timestamp": user.get("timestamp") if user.get("timestamp") else int(str(time.time())),
-      "steam_skin": user["steam_skin"],
+      "timestamp": user.get("timestamp") if user.get("timestamp") else str(int(time.time())),
+      "steam_skin": user.get("steam_skin", ""),
       "steam_user": user.get("steam_user", {})
     }
-    if login_name not in self.settings["users"]:
-      for popval in ['steam_user', 'steam_name']:
-        user.pop(popval)
+    #if login_name not in self.settings["users"]:
+    #  for popval in ['steam_user', 'steam_name']:
+    #    user.pop(popval)
 
     self.settings["users"][login_name] = user
 
