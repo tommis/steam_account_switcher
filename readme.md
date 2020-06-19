@@ -59,6 +59,7 @@ Flags  (TODO)
 - [ ] Actually check something with tests
 - [ ] Status bar
 - [ ] Size menu
+- [ ] Make account reordering work
         
 ## Requirements & installation
 

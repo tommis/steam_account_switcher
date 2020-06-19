@@ -127,7 +127,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu = QMenu(self.accounts_list)
 
     selected = self.accounts_list.currentItem()
-    login_name = selected.data(2)
+    login_name = selected.data(5)
     account = self.switcher.settings["users"].get(login_name, {})
 
     login_action = QAction("Login", self)
@@ -239,7 +239,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def account_dialog(self, new_account=False):
     self.account_dialog_window = QDialog(self)
-    self.account_dialog_window.setFixedSize(300, 125)
+    self.account_dialog_window.setMinimumSize(300, 125)
 
     # Main layout
     dialog_layout = QVBoxLayout()
@@ -253,20 +253,20 @@ class SteamAccountSwitcherGui(QMainWindow):
     steam_skin_select = QComboBox()
     steam_skin_select.addItems(self.switcher.steam_skins)
 
+    login_name = self.accounts_list.currentItem().data(5)
+    user = self.switcher.settings["users"].get(self.accounts_list.currentItem().data(5), {})
 
     if new_account:
       self.account_dialog_window.setWindowTitle("Add account")
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
-      login_name = self.accounts_list.currentItem().data(0)
-      account = self.accounts_list.currentItem().data(3)
 
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
       account_name_edit.setText(login_name)
-      comment_edit.setText(account.get("comment"))
-      steam_skin_select_index = steam_skin_select.findText(account["steam_skin"])
+      comment_edit.setText(user.get("comment"))
+      steam_skin_select_index = steam_skin_select.findText(user.get("steam_skin", "default"))
       if steam_skin_select_index != -1:
         steam_skin_select.setCurrentIndex(steam_skin_select_index)
       else:
@@ -281,6 +281,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     dialog_layout.addWidget(account_name_edit)
     dialog_layout.addWidget(comment_edit)
     dialog_layout.addWidget(steam_skin_select)
+
+    user["steam_skin"] = steam_skin_select.currentText()
 
     self.submit_button.clicked.connect(lambda: self.save_account(
       new_account, account_name_edit.text(), "" if new_account else login_name,
@@ -316,18 +318,18 @@ class SteamAccountSwitcherGui(QMainWindow):
     size = self.switcher.settings.get("display_size", "small")
     for login_name, account in sorted_users:
       item = QListWidgetItem()
-      item.setData(0, account.get("steam_user", login_name))
-      item.setData(2, login_name)
-      item.setData(3, account)
-      item.setData(5, account.get("comment"))
+      item.setData(0, account)
+      if self.switcher.settings.get("show_avatars"):
+        item.setData(1, QIcon(avatars.get(login_name)))
+      item.setData(2, str(account.get("steam_name", login_name)))
+      item.setData(3, account.get("comment"))
+      item.setData(5, login_name)
       if size == "small":
         item.setData(13, QSize(0, 20))
       if size == "medium":
         item.setData(13, QSize(0, 40))
       if size == "large":
         item.setData(13, QSize(0, 60))
-      if self.switcher.settings.get("show_avatars"):
-        item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 
