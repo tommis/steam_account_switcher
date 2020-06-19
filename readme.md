@@ -29,7 +29,7 @@ Flags  (TODO)
 
 ## Settings file
 
-`changer.json` inside program install dir.
+`settings.json` inside program install dir.
 
 - `"behavior_after_login"` values:
     - *minimize* (default)
