@@ -120,6 +120,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def exit_app(self):
+    self.tray_icon.hide()
     QApplication.quit()
 
   def show_rightclick_menu(self, item):
