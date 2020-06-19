@@ -111,7 +111,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.accounts_list.itemChanged.connect(self.account_reordered)
 
     # System tray
-    if self.switcher.changer_settings.get("use_systemtray"):
+    if self.switcher.settings.get("use_systemtray"):
       self.systemtray(self.main_widget)
 
     self.setCentralWidget(self.main_widget)
@@ -128,7 +128,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     selected = self.accounts_list.currentItem()
     login_name = selected.data(2)
-    account = self.switcher.changer_settings["users"].get(login_name)
+    account = self.switcher.settings["users"].get(login_name)
 
     login_action = QAction("Login", self)
     edit_action = QAction("Edit", self)
@@ -200,7 +200,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def set_size(self, size):
     print("Set size {0}".format(size))
-    self.switcher.changer_settings["display_size"] = size
+    self.switcher.settings["display_size"] = size
     self.load_accounts()
 
   @Slot()
@@ -296,20 +296,20 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.switcher.kill_steam()
     self.switcher.set_autologin_account(item.data(2))
     self.switcher.start_steam()
-    if self.switcher.changer_settings["behavior_after_login"] == "close":
+    if self.switcher.settings["behavior_after_login"] == "close":
       self.exit_app()
-    elif self.switcher.changer_settings["behavior_after_login"] == "minimize":
+    elif self.switcher.settings["behavior_after_login"] == "minimize":
       self.hide()
 
 
   def load_accounts(self):
     self.accounts_list.clear()
-    sorted_users = sorted(self.switcher.changer_settings["users"].items(), key=lambda a: a[1]["display_order"])
-    avatars = self.switcher.get_steam_avatars(list(self.switcher.changer_settings["users"].keys()))
+    sorted_users = sorted(self.switcher.settings["users"].items(), key=lambda a: a[1]["display_order"])
+    avatars = self.switcher.get_steam_avatars(list(self.switcher.settings["users"].keys()))
     self.insert_accounts(sorted_users, avatars)
 
   def insert_accounts(self, sorted_users, avatars):
-    size = self.switcher.changer_settings.get("display_size",  "small")
+    size = self.switcher.settings.get("display_size", "small")
     for login_name, account in sorted_users:
       #if size == "small": # TODO: figure out how to create visually medium and large list
       if size:
@@ -318,7 +318,7 @@ class SteamAccountSwitcherGui(QMainWindow):
         item.setData(2, login_name)
         item.setData(3, account)
         item.setData(5, account.get("comment"))
-        if self.switcher.changer_settings.get("show_avatars"):
+        if self.switcher.settings.get("show_avatars"):
           item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()

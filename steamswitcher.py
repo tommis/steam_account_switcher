@@ -23,14 +23,14 @@ class SteamSwitcher:
   system_os: str
   #windows_HKCU_registry: winreg
   linux_registry: {}
-  changer_settings: dict
-  changer_settings_file: str
+  settings: dict
+  settings_file: str
   steam_skins: []
 
 
   def __init__(self):
     self._load_registry()
-    self.changer_settings = self._load_settings()
+    self.settings = self._load_settings()
     if self.system_os == "Windows":
       self.skins_dir = ntpath.join(self.steam_dir, "skins")
     else:
@@ -59,9 +59,9 @@ class SteamSwitcher:
 
   def _load_settings(self) -> dict:
     self.changer_path = os.getcwd()
-    self.changer_settings_file = os.path.join(self.changer_path, "changer.json")
+    self.settings_file = os.path.join(self.changer_path, "settings.json")
     try:
-      with open(self.changer_settings_file, encoding='utf-8') as settings_file:
+      with open(self.settings_file, encoding='utf-8') as settings_file:
         return json.load(settings_file)
     except FileNotFoundError:
       print("Settings file not found, creating...")
@@ -74,7 +74,7 @@ class SteamSwitcher:
         "use_systemtray": True,
         "users": {}
       }
-      with open(self.changer_settings_file, 'w+', encoding='utf-8') as settings_file:
+      with open(self.settings_file, 'w+', encoding='utf-8') as settings_file:
         json.dump(empty_settings, settings_file, indent=2, ensure_ascii=False)
       return self._load_settings()
     except json.JSONDecodeError:
@@ -108,9 +108,9 @@ class SteamSwitcher:
       subprocess.Popen("/usr/bin/steam-runtime")
 
   def get_steamapi_usersummary(self, uid: str) -> dict:
-    api_key = self.changer_settings["steam_api_key"]
+    api_key = self.settings["steam_api_key"]
     if not api_key:
-      raise Exception("No steam_api_key not defined")
+      raise Exception("No steam_api_key defined")
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
     response = requests.get(api_url, params={"key": api_key, "steamids": uid})
     if response.status_code == 200 and response.json()["response"]["players"]:
@@ -120,9 +120,9 @@ class SteamSwitcher:
 
 
   def set_autologin_account(self, login_name):
-    if login_name in self.changer_settings["users"]:
-      self.sync_steam_autologin_accounts()
-      user = self.changer_settings["users"][login_name]
+    if login_name in self.settings["users"]:
+      #self.sync_steam_autologin_accounts()
+      user = self.settings["users"][login_name]
       if self.system_os == "Windows":
         try:
           winreg.SetValueEx(self.windows_HKCU_registry, "AutoLoginUser", 0, winreg.REG_SZ, login_name)
@@ -139,26 +139,25 @@ class SteamSwitcher:
   def add_new_account(self, account_name, old_account_name="", comment="", steam_skin="default", display_order=0):
     user = {
       "comment": comment,
-      "display_order": len(self.changer_settings["users"]) + 1,
+      "display_order": len(self.settings["users"]) + 1,
       "timestamp": str(time.time()),
       "steam_skin": steam_skin,
       "steam_user": {} #self.get_steamapi_usersummary(uid) if uid != "" else {}
     }
     if old_account_name != "":
-      self.changer_settings["users"].pop(old_account_name)
+      self.settings["users"].pop(old_account_name)
 
-    self.changer_settings["users"][account_name] = user
+    self.settings["users"][account_name] = user
 
     print("Saving {0} account".format(account_name))
-    with open(self.changer_settings_file, 'w', encoding='utf-8') as settings_file:
-      json.dump(self.changer_settings, settings_file, indent=2, ensure_ascii=False)
-
-    self.get_steamids()
+    with open(self.settings_file, 'w', encoding='utf-8') as settings_file:
+      json.dump(self.settings, settings_file, indent=2, ensure_ascii=False)
+    #self.get_steamids()
 
   def delete_account(self, account_name):
-    self.changer_settings["users"].pop(account_name)
-    with open(self.changer_settings_file, 'w', encoding='utf-8') as settings_file:
-      json.dump(self.changer_settings, settings_file, indent=2, ensure_ascii=False)
+    self.settings["users"].pop(account_name)
+    with open(self.settings_file, 'w', encoding='utf-8') as settings_file:
+      json.dump(self.settings, settings_file, indent=2, ensure_ascii=False)
 
   def get_steamids(self):
     if self.system_os == "Windows":
@@ -174,21 +173,21 @@ class SteamSwitcher:
     for uid, user in loginusers.items():
       if not len(uid) == 17 and uid.isnumeric():
         raise Exception("UID: {0} doesn't seem like steam id".format(uid))
-      if user["AccountName"] in self.changer_settings["users"]:
-        self.changer_settings["users"][user["AccountName"]]["steam_uid"] = uid
+      if user["AccountName"] in self.settings["users"]:
+        self.settings["users"][user["AccountName"]]["steam_uid"] = uid
 
     try:
-      with open(self.changer_settings_file, "w", encoding='utf-8') as settings_file:
-        json.dump(self.changer_settings, settings_file, indent=2, ensure_ascii=False)
+      with open(self.settings_file, "w", encoding='utf-8') as settings_file:
+        json.dump(self.settings, settings_file, indent=2, ensure_ascii=False)
     except FileNotFoundError:
       print("Settings file not found")
 
   def get_steam_avatars(self, *login_names, **kwargs) -> dict:
     r = {}
     for login_name in login_names[0]:
-      if login_name in self.changer_settings["users"]:
+      if login_name in self.settings["users"]:
         try:
-          img_url = self.changer_settings["users"][login_name]["steam_user"].get("avatarfull")
+          img_url = self.settings["users"][login_name]["steam_user"].get("avatarfull")
           img_filename = img_url.split("/")[-1] if img_url is not None else "avatar.png"
           avatar_path = os.path.join(self.changer_path, "avatars", img_filename)
           if os.path.isfile(avatar_path):
@@ -213,7 +212,7 @@ class SteamSwitcher:
   def sync_steam_autologin_accounts(self):
     loginusers_path = os.path.join(self.steam_dir, "config/loginusers.vdf")
     users = {"users": {}}
-    for login_name, user in self.changer_settings["users"].items():
+    for login_name, user in self.settings["users"].items():
       try:
         users["users"][login_name] = {
           "AccountName": login_name,
