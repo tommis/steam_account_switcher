@@ -253,16 +253,14 @@ class SteamAccountSwitcherGui(QMainWindow):
     steam_skin_select = QComboBox()
     steam_skin_select.addItems(self.switcher.steam_skins)
 
-    try:
-      user = self.switcher.settings["users"].get(self.accounts_list.currentItem().data(5), {})
-    except Exception:
-      user = {}
-
     if new_account:
+      user = {}
       self.account_dialog_window.setWindowTitle("Add account")
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
+      user = self.switcher.settings["users"].get(self.accounts_list.currentItem().data(5), {})
+
       login_name = self.accounts_list.currentItem().data(5)
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
