@@ -172,8 +172,10 @@ class SteamSwitcher:
       return ""
 
     for uid, user in loginusers.items():
+      if not len(uid) == 17 and uid.isnumeric():
+        raise Exception("UID: {0} doesn't seem like steam id".format(uid))
       if user["AccountName"] in self.changer_settings["users"]:
-        self.changer_settings["users"][user["AccountName"]]["steam_user"] = self.get_steamapi_usersummary(uid)
+        self.changer_settings["users"][user["AccountName"]]["steam_uid"] = uid
 
     try:
       with open(self.changer_settings_file, "w", encoding='utf-8') as settings_file:
