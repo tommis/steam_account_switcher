@@ -170,7 +170,6 @@ class SteamSwitcher:
         except Exception:
           print("ERROR")
 
-
     self.settings["users"][login_name] = user
 
     print("Saving {0} account".format(login_name))
@@ -186,7 +185,8 @@ class SteamSwitcher:
     else:
       loginusers_path = os.path.join(self.steam_linux_dir, "config/loginusers.vdf")
     try:
-      loginusers = PyVDF(infile=loginusers_path).getData()["users"]
+      with open(loginusers_path, encoding='utf-8') as loginusers_file:
+        loginusers = PyVDF(infile=loginusers_file).getData()["users"]
     except Exception as e:
       print("loginusers.vdf load error\n{0}".format(e))
       return ""
