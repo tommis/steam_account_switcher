@@ -25,6 +25,7 @@ class SteamSwitcher:
   linux_registry: {}
   changer_settings: dict
   changer_settings_file: str
+  steam_skins: []
 
 
   def __init__(self):
@@ -34,6 +35,7 @@ class SteamSwitcher:
       self.skins_dir = ntpath.join(self.steam_dir, "skins")
     else:
       self.skins_dir = os.path.join(self.steam_linux_dir, "skins")
+    self.steam_skins = self.get_steam_skins()
 
   def _load_registry(self):
     self.system_os = platform.system()
@@ -236,14 +238,3 @@ class SteamSwitcher:
 
 if __name__ == "__main__":
     s = SteamSwitcher()
-
-
-    #s.add_new_account("tommi")
-
-    #s.get_steamids()
-    #s.set_autologin_account("")
-
-    #s.sync_steam_autologin_accounts()
-
-    #s.kill_steam()
-    #s.start_steam()

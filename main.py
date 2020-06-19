@@ -159,6 +159,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def steamapi_refresh(self):
+    self.switcher.steam_skins = self.switcher.get_steam_skins()
     self.switcher.get_steamids()
 
   @Slot()
@@ -246,7 +247,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     comment_edit.setPlaceholderText("Comment")
 
     steam_skin_select = QComboBox()
-    steam_skin_select.addItems(self.switcher.get_steam_skins())
+    steam_skin_select.addItems(self.switcher.steam_skins)
 
 
     if new_account:
