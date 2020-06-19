@@ -225,8 +225,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     else:
       self.submit_button.setEnabled(False)
 
-  def save_account(self, new_account, account_name, old_account_name, comment, steam_skin):
-    self.switcher.add_new_account(account_name, "" if new_account else old_account_name, comment, steam_skin)
+  def save_account(self, login_name, user):
+    self.switcher.add_account(login_name, user)
 
     self.load_accounts()
     self.account_dialog_window.close()
@@ -261,7 +261,6 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
-
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
       self.submit_button = QPushButton("Edit")
       account_name_edit.setText(login_name)
@@ -284,9 +283,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     user["steam_skin"] = steam_skin_select.currentText()
 
-    self.submit_button.clicked.connect(lambda: self.save_account(
-      new_account, account_name_edit.text(), "" if new_account else login_name,
-      comment_edit.text(), steam_skin_select.currentText()))
+    self.submit_button.clicked.connect(lambda: self.save_account(login_name, user))
     close_button.clicked.connect(self.account_dialog_window.close)
 
     buttons = QHBoxLayout()

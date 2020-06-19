@@ -153,20 +153,21 @@ class SteamSwitcher:
     else:
         raise ValueError
 
-  def add_new_account(self, account_name, old_account_name="", comment="", steam_skin="", display_order=0):
+  def add_account(self, login_name, user):
     user = {
-      "comment": comment,
+      "comment": user["comment"],
       "display_order": len(self.settings["users"]) + 1,
-      "timestamp": str(time.time()),
-      "steam_skin": steam_skin,
-      "steam_user": {}
+      "timestamp": user.get("timestamp") if user.get("timestamp") else int(str(time.time())),
+      "steam_skin": user["steam_skin"],
+      "steam_user": user.get("steam_user", {})
     }
-    if old_account_name != "":
-      self.settings["users"].pop(old_account_name)
+    if login_name not in self.settings["users"]:
+      for popval in ['steam_user', 'steam_name']:
+        user.pop(popval)
 
-    self.settings["users"][account_name] = user
+    self.settings["users"][login_name] = user
 
-    print("Saving {0} account".format(account_name))
+    print("Saving {0} account".format(login_name))
     self.settings_write()
 
   def delete_account(self, account_name):
