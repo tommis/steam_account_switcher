@@ -4,6 +4,8 @@
 
 A GUI program to quickly switch between many steam accounts for Linux and Windows.
 
+I have found no way to automatically to find out steam profile name and avatar. So for now it has to be a manual menu action.
+
 Your login info is stored in steam installation directory in the files starting with ssfn so this program doesn't actually know your password.
 
 ## GUI
@@ -19,13 +21,9 @@ Syntax `python main.py <options>`
 Flags  (TODO)
 
 * `-login USERNAME`
-
 * `-add USERNAME` or `-add USERNAME,USERNAME,USERNAME...`
-
 * `-remove/-delete USERNAME`
-
 * `-list`
-
 * `-about`
 
 
@@ -36,12 +34,12 @@ Flags  (TODO)
 - `"behavior_after_login"` values:
     - *minimize* (default)
     - *close*
-    - *minimize_tray*
+    - *systemtray*
 - `"theme"` values:
     - *dark* (default)
     - *light*
-- `"show_avatars"` boolean true by default
-- `"use_systemtray"` boolean true by default
+- `"show_avatars"` *boolean* true by default
+- `"use_systemtray"` *boolean* true by default
 - `"steam_api_key"` used for getting steam avatars and profile pages. Get yours from [steam](https://steamcommunity.com/dev/apikey)
 - `"users"` object
     - `login_name` the unique name you use for login
@@ -58,6 +56,7 @@ Flags  (TODO)
 - [ ] Command line interface
 - [ ] Linux
 - [ ] Code refactoring
+- [ ] Actually check something with tests
 - [ ] Status bar
 - [ ] Size menu
         

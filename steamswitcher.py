@@ -42,7 +42,7 @@ class SteamSwitcher:
     self.steam_dir = (self._get_linux_registry() if self.system_os == "Linux"
                       else self._get_windows_registry() if self.system_os == "Windows" else "ERROR")
 
-  def _get_windows_registry(self) -> str:
+  def _get_windows_registry(self) -> dict:
     self.windows_HKCU_registry = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                                                 "SOFTWARE\\Valve\\Steam", 0, winreg.KEY_ALL_ACCESS)
     return winreg.QueryValueEx(self.windows_HKCU_registry, "SteamPath")[0]
@@ -54,7 +54,7 @@ class SteamSwitcher:
     try:
       self.linux_registry = PyVDF(infile=self.registry_path)
     except Exception as e:
-      print("registry load error")
+      print("registry load error\n{e}")
     return self.steam_dir
 
   def _load_settings(self) -> dict:
@@ -65,20 +65,31 @@ class SteamSwitcher:
         return json.load(settings_file)
     except FileNotFoundError:
       print("Settings file not found, creating...")
-      empty_settings = {
-        "behavior_after_login": "minimize",
-        "theme": "dark",
-        "display_size": "small",
-        "steam_api_key": "",
-        "show_avatars": True,
-        "use_systemtray": True,
-        "users": {}
-      }
-      with open(self.settings_file, 'w+', encoding='utf-8') as settings_file:
-        json.dump(empty_settings, settings_file, indent=2, ensure_ascii=False)
+      self.settings_write(True)
       return self._load_settings()
     except json.JSONDecodeError:
       print("Settings file is corrupted")
+
+  def settings_write(self, new=False):
+    empty_settings = {
+      "behavior_after_login": "minimize",
+      "theme": "dark",
+      "display_size": "small",
+      "steam_api_key": "",
+      "show_avatars": True,
+      "use_systemtray": True,
+      "users": {}
+    }
+    try:
+      with open(self.settings_file, "w", encoding='utf-8') as settings_file:
+        json.dump(empty_settings if new else self.settings, settings_file, indent=2, ensure_ascii=False)
+    except FileNotFoundError:
+      print("Settings file not found")
+
+  def get_steam_skins(self) -> []:
+    l = [ f.name for f in os.scandir(self.skins_dir) if f.is_dir() ]
+    l.insert(0, "default")
+    return l
 
 
   def kill_steam(self):
@@ -107,14 +118,20 @@ class SteamSwitcher:
     elif self.system_os == "Linux":
       subprocess.Popen("/usr/bin/steam-runtime")
 
-  def get_steamapi_usersummary(self, uid: str) -> dict:
+  def get_steamapi_usersummary(self, uids: list = []) -> dict:
     api_key = self.settings["steam_api_key"]
     if not api_key:
       raise Exception("No steam_api_key defined")
+    if not uids:
+      uids = [ user.get("steam_uid") for user in self.settings["users"].values() if user.get("steam_uid") != None]
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
-    response = requests.get(api_url, params={"key": api_key, "steamids": uid})
+    response = requests.get(api_url, params={"key": api_key, "steamids": ','.join(uids)})
     if response.status_code == 200 and response.json()["response"]["players"]:
-      return response.json()["response"]["players"][0]
+      for steam_user in response.json()["response"]["players"]:
+        login_name, user = [ (login_name, user) for (login_name, user) in self.settings["users"].items() if user.get("steam_uid") == steam_user["steamid"] ][0]
+        user["steam_user"] = steam_user
+        self.settings["users"][login_name] = user
+      self.settings_write()
     else:
       return {}
 
@@ -126,23 +143,23 @@ class SteamSwitcher:
       if self.system_os == "Windows":
         try:
           winreg.SetValueEx(self.windows_HKCU_registry, "AutoLoginUser", 0, winreg.REG_SZ, login_name)
-          winreg.SetValueEx(self.windows_HKCU_registry, "SkinV5", 0, winreg.REG_SZ, "" if user["steam_skin"] == "default" else user["steam_skin"])
+          winreg.SetValueEx(self.windows_HKCU_registry, "SkinV5", 0, winreg.REG_SZ, user.get("steam_skin", ""))
         except PermissionError:
           print("ERROR: Insufficient permission to set AutoLoginUser")
       elif self.system_os == "Linux":
         self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.AutoLoginUser", login_name)
-        self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.SkinV5", "" if user["steam_skin"] == "default" else user["steam_skin"])
+        self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.SkinV5", user.get("steam_skin", ""))
         self.linux_registry.write_file(self.registry_path)
     else:
         raise ValueError
 
-  def add_new_account(self, account_name, old_account_name="", comment="", steam_skin="default", display_order=0):
+  def add_new_account(self, account_name, old_account_name="", comment="", steam_skin="", display_order=0):
     user = {
       "comment": comment,
       "display_order": len(self.settings["users"]) + 1,
       "timestamp": str(time.time()),
       "steam_skin": steam_skin,
-      "steam_user": {} #self.get_steamapi_usersummary(uid) if uid != "" else {}
+      "steam_user": {}
     }
     if old_account_name != "":
       self.settings["users"].pop(old_account_name)
@@ -150,16 +167,14 @@ class SteamSwitcher:
     self.settings["users"][account_name] = user
 
     print("Saving {0} account".format(account_name))
-    with open(self.settings_file, 'w', encoding='utf-8') as settings_file:
-      json.dump(self.settings, settings_file, indent=2, ensure_ascii=False)
+    self.settings_write()
     #self.get_steamids()
 
   def delete_account(self, account_name):
     self.settings["users"].pop(account_name)
-    with open(self.settings_file, 'w', encoding='utf-8') as settings_file:
-      json.dump(self.settings, settings_file, indent=2, ensure_ascii=False)
+    self.settings_write()
 
-  def get_steamids(self):
+  def get_steamuids(self):
     if self.system_os == "Windows":
       loginusers_path = os.path.join(self.steam_dir, "config/loginusers.vdf")
     else:
@@ -175,12 +190,8 @@ class SteamSwitcher:
         raise Exception("UID: {0} doesn't seem like steam id".format(uid))
       if user["AccountName"] in self.settings["users"]:
         self.settings["users"][user["AccountName"]]["steam_uid"] = uid
-
-    try:
-      with open(self.settings_file, "w", encoding='utf-8') as settings_file:
-        json.dump(self.settings, settings_file, indent=2, ensure_ascii=False)
-    except FileNotFoundError:
-      print("Settings file not found")
+        self.settings["users"][user["AccountName"]]["steam_name"] = user["PersonaName"]
+    self.settings_write()
 
   def get_steam_avatars(self, *login_names, **kwargs) -> dict:
     r = {}
@@ -231,11 +242,6 @@ class SteamSwitcher:
     new_vdf.setData(users)
     new_vdf.write_file(loginusers_path)
 
-
-  def get_steam_skins(self) -> []:
-    l = [ f.name for f in os.scandir(self.skins_dir) if f.is_dir() ]
-    l.insert(0, "default")
-    return l
 
 if __name__ == "__main__":
     s = SteamSwitcher()

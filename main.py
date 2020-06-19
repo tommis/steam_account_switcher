@@ -7,7 +7,7 @@ import webbrowser
 import platform
 import logging
 
-from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, QSize
 from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
@@ -42,7 +42,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.file_menu = self.menu.addMenu("File")
     self.size_menu = self.menu.addMenu("Size")
 
-    settings_action = QAction("Settings", self)
+    settings_action = QAction("Settings", self, )
     settings_action.triggered.connect(self.settings_dialog)
     refresh_action = QAction("refresh", self)
     refresh_action.triggered.connect(self.steamapi_refresh)
@@ -51,10 +51,10 @@ class SteamAccountSwitcherGui(QMainWindow):
     about_action = QAction("About", self)
     about_action.triggered.connect(self.about_dialog)
     exit_action = QAction("Exit", self)
-    exit_action.setShortcut("Ctrl+Q")
     exit_action.triggered.connect(self.exit_app)
 
     refresh_action.setShortcut("F5")
+    exit_action.setShortcut("Ctrl+Q")
 
     self.file_menu.addAction(settings_action)
     self.file_menu.addAction(refresh_action)
@@ -108,7 +108,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     #self.accounts_list.dragMoveEvent.connect()
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
     self.accounts_list.customContextMenuRequested.connect(self.show_rightclick_menu)
-    self.accounts_list.itemChanged.connect(self.account_reordered)
+    #self.accounts_list.layoutChanged.connect(self.account_reordered)
 
     # System tray
     if self.switcher.settings.get("use_systemtray"):
@@ -128,17 +128,12 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     selected = self.accounts_list.currentItem()
     login_name = selected.data(2)
-    account = self.switcher.settings["users"].get(login_name)
+    account = self.switcher.settings["users"].get(login_name, {})
 
     login_action = QAction("Login", self)
     edit_action = QAction("Edit", self)
     delete_action = QAction("Delete", self)
     open_profile_action = QAction("Steam profile", self)
-
-    login_action.triggered.connect(lambda: self.steam_login(selected))
-    edit_action.triggered.connect(lambda: self.account_dialog())
-    delete_action.triggered.connect(lambda: self.remove_account(login_name))
-    open_profile_action.triggered.connect(lambda: self.open_steam_profile(account))
 
     delete_action.setIcon(QIcon.fromTheme("edit-delete"))
     open_profile_action.setIcon(QIcon.fromTheme("document-open"))
@@ -149,8 +144,14 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu.addSeparator()
     right_menu.addAction(open_profile_action)
 
-    if not account["steam_user"].get("profileurl"):
-      open_profile_action.setDisabled(True)
+    login_action.triggered.connect(lambda: self.steam_login(selected))
+    edit_action.triggered.connect(lambda: self.account_dialog())
+    delete_action.triggered.connect(lambda: self.remove_account(login_name))
+    open_profile_action.triggered.connect(lambda: self.open_steam_profile(account))
+
+    open_profile_action.setDisabled(True)
+    if account.get("steam_user", {}).get("profileurl"):
+      open_profile_action.setEnabled(True)
 
     right_menu.exec_(QCursor.pos())
 
@@ -160,7 +161,9 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def steamapi_refresh(self):
     self.switcher.steam_skins = self.switcher.get_steam_skins()
-    self.switcher.get_steamids()
+    self.switcher.get_steamuids()
+    self.switcher.get_steamapi_usersummary()
+    self.load_accounts()
 
   @Slot()
   def settings_dialog(self):
@@ -201,11 +204,12 @@ class SteamAccountSwitcherGui(QMainWindow):
   def set_size(self, size):
     print("Set size {0}".format(size))
     self.switcher.settings["display_size"] = size
+    self.switcher.settings_write()
     self.load_accounts()
 
   @Slot()
-  def account_reordered(self, r="asdasd"):
-    print(r)
+  def account_reordered(self, account):
+    print(account)
 
   @Slot()
   def edit_button_enabled(self):
@@ -255,7 +259,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.submit_button = QPushButton("Add")
       self.submit_button.setDisabled(True)
     else:
-      login_name = self.accounts_list.currentItem().data(2)
+      login_name = self.accounts_list.currentItem().data(0)
       account = self.accounts_list.currentItem().data(3)
 
       self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
@@ -294,7 +298,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def steam_login(self, item):
     self.switcher.kill_steam()
-    self.switcher.set_autologin_account(item.data(2))
+    self.switcher.set_autologin_account(item.data(0))
     self.switcher.start_steam()
     if self.switcher.settings["behavior_after_login"] == "close":
       self.exit_app()
@@ -311,15 +315,19 @@ class SteamAccountSwitcherGui(QMainWindow):
   def insert_accounts(self, sorted_users, avatars):
     size = self.switcher.settings.get("display_size", "small")
     for login_name, account in sorted_users:
-      #if size == "small": # TODO: figure out how to create visually medium and large list
-      if size:
-        item = QListWidgetItem()
-        item.setData(0, account["steam_user"].get("personaname", login_name))
-        item.setData(2, login_name)
-        item.setData(3, account)
-        item.setData(5, account.get("comment"))
-        if self.switcher.settings.get("show_avatars"):
-          item.setIcon(QIcon(avatars.get(login_name)))
+      item = QListWidgetItem()
+      item.setData(0, account.get("steam_user", login_name))
+      item.setData(2, login_name)
+      item.setData(3, account)
+      item.setData(5, account.get("comment"))
+      if size == "small":
+        item.setData(13, QSize(0, 20))
+      if size == "medium":
+        item.setData(13, QSize(0, 40))
+      if size == "large":
+        item.setData(13, QSize(0, 60))
+      if self.switcher.settings.get("show_avatars"):
+        item.setIcon(QIcon(avatars.get(login_name)))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 
