@@ -223,10 +223,11 @@ class SteamAccountSwitcherGui(QMainWindow):
     layout = QVBoxLayout()
     dialog.setLayout(layout)
 
-    text_label = QLabel("Used for getting avatars. Get yours from steam https://steamcommunity.com/deva/pikey")
+    text_label = QLabel("Used for getting avatars. Get yours from <a href='https://steamcommunity.com/dev/apikey'>steam</a>")
     apikey_edit = QLineEdit()
     save_button = QPushButton("Save")
 
+    text_label.setOpenExternalLinks(True)
     apikey_edit.setText(self.switcher.settings.get("steam_api_key"))
 
     layout.addWidget(text_label)

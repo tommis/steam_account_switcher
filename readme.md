@@ -14,7 +14,7 @@ Your login info is stored in steam installation directory in the files starting 
 
 Run with `python main.py`
 
-Remember to get your steamapi key from [steam](https://steamcommunity.com/deva/pikey).
+Remember to get your steamapi key from [steam](https://steamcommunity.com/dev/apikey).
 
 ## Command line usage
 
@@ -23,7 +23,7 @@ Syntax `python main.py <options>`
 Flags  (TODO)
 
 * `-login USERNAME`
-* `-add USERNAME` or `-add USERNAME,USERNAME,USERNAME...`
+* `-add USERNAME` or `-add USERNAME,USERNAME,USERNAME...`z
 * `-remove/-delete USERNAME`
 * `-list`
 * `-about`
