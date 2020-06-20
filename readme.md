@@ -14,6 +14,8 @@ Your login info is stored in steam installation directory in the files starting 
 
 Run with `python main.py`
 
+Remember to get your steamapi key from [steam](https://steamcommunity.com/deva/pikey).
+
 ## Command line usage
 
 Syntax `python main.py <options>`
