@@ -12,7 +12,7 @@ from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QVBoxLayout, QWidget, QListWidget, QDialog, QTextEdit, QListWidgetItem, QGroupBox,
-                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon, QStyle)
+                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon, QStyle, QActionGroup)
 
 from steamswitcher import SteamSwitcher
 
@@ -67,6 +67,24 @@ class SteamAccountSwitcherGui(QMainWindow):
     show_avatars = QAction("Show avatars", self, checkable=True)
     use_systemtray = QAction("Use systemtray", self, checkable=True)
 
+    after_login_menu = QMenu("After login", self)
+
+    after_login_behaviour_group = QActionGroup(after_login_menu, exclusive=True)
+
+    nothing_behaviour = QAction('Nothing', after_login_behaviour_group, checkable=True, data="")
+    close_behaviour = QAction('Close', after_login_behaviour_group, checkable=True, data="close")
+    minimize_behaviour = QAction('Minimize', after_login_behaviour_group, checkable=True, data="minimize")
+    minimize_tray_behaviour = QAction('Minimize to tray', after_login_behaviour_group, checkable=True, data="minimize_tray")
+
+    after_login_menu.addAction(nothing_behaviour)
+    after_login_menu.addAction(close_behaviour)
+    after_login_menu.addAction(minimize_behaviour)
+    after_login_menu.addAction(minimize_tray_behaviour)
+
+    after_login_menu.triggered.connect(self.set_after_login_action)
+
+    behaviour = self.switcher.settings["behavior_after_login"]
+
     show_avatars.setChecked(self.switcher.settings.get("show_avatars"))
     use_systemtray.setChecked(self.switcher.settings.get("use_systemtray"))
     if self.switcher.settings.get("use_systemtray"):
@@ -80,6 +98,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.settings_menu.addSeparator()
     self.settings_menu.addAction(show_avatars)
     self.settings_menu.addAction(use_systemtray)
+    self.settings_menu.addMenu(after_login_menu)
 
     set_size_small = QAction("Small", self)
     set_size_medium = QAction("Medium", self)

@@ -36,7 +36,8 @@ Flags  (TODO)
 - `"behavior_after_login"` values:
     - *minimize* (default)
     - *close*
-    - *systemtray*
+    - *minimize_tray*
+    - leave empty for nothing
 - `"theme"` values:
     - *dark* (default)
     - *light*
