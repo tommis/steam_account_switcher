@@ -97,7 +97,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     self.add_button = QPushButton("Add account")
     self.edit_button = QPushButton("Edit account")
-    self.edit_button.setDisabled(1)
+    self.edit_button.setDisabled(True)
 
     self.buttons = QHBoxLayout()
     self.buttons.addWidget(self.add_button)
@@ -145,7 +145,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     QApplication.quit()
 
   def show_rightclick_menu(self, item):
-    right_menu = QMenu(self.accounts_list)
+    right_menu = QMenu()
 
     selected = self.accounts_list.currentItem()
     login_name = selected.data(5)
@@ -174,7 +174,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     if account.get("steam_user", {}).get("profileurl"):
       open_profile_action.setEnabled(True)
 
-    right_menu.exec_(QCursor.pos())
+    if self.accounts_list.selectedItems():
+      right_menu.exec_(QCursor.pos())
 
   def open_steam_profile(self, account):
     webbrowser.open(account["steam_user"].get("profileurl"))
