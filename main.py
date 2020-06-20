@@ -32,7 +32,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.setWindowIcon(switcher_logo)
     if platform.system() == "Windows":
       import ctypes
-      win_appid = 'github.tommis.steam_account_switcher.alpha'
+      win_appid = 'github.tommis.steam_account_switcher.z'
       ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(win_appid)
 
     # Menu
@@ -61,19 +61,19 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.file_menu.addSeparator()
     self.file_menu.addAction(exit_action)
 
-    set_size_large = QAction("Large", self)
-    set_size_medium = QAction("Medium", self)
     set_size_small = QAction("Small", self)
-    set_size_large.triggered.connect(lambda: self.set_size("large"))
-    set_size_medium.triggered.connect(lambda: self.set_size("medium"))
+    set_size_medium = QAction("Medium", self)
+    set_size_large = QAction("Large", self)
     set_size_small.triggered.connect(lambda: self.set_size("small"))
-    self.size_menu.addAction(set_size_large)
-    self.size_menu.addAction(set_size_medium)
+    set_size_medium.triggered.connect(lambda: self.set_size("medium"))
+    set_size_large.triggered.connect(lambda: self.set_size("large"))
     self.size_menu.addAction(set_size_small)
+    self.size_menu.addAction(set_size_medium)
+    self.size_menu.addAction(set_size_large)
 
-    set_size_large.setShortcut("Ctrl+1")
+    set_size_small.setShortcut("Ctrl+1")
     set_size_medium.setShortcut("Ctrl+2")
-    set_size_small.setShortcut("Ctrl+3")
+    set_size_large.setShortcut("Ctrl+3")
 
     self.add_button = QPushButton("Add account")
     self.edit_button = QPushButton("Edit account")
@@ -317,6 +317,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   def insert_accounts(self, sorted_users, avatars):
     size = self.switcher.settings.get("display_size", "small")
+    font = QFont()
     for login_name, account in sorted_users:
       item = QListWidgetItem()
       item.setData(0, account)
@@ -327,15 +328,18 @@ class SteamAccountSwitcherGui(QMainWindow):
       item.setData(5, login_name)
       if size == "small":
         item.setData(13, QSize(0, 20))
-        item.setFont(QFont("", 10))
+        font.setPixelSize(12)
+        item.setFont(font)
         self.accounts_list.setIconSize(QSize(20, 20))
       if size == "medium":
         item.setData(13, QSize(0, 40))
-        item.setFont(QFont("", 14))
+        font.setPixelSize(14)
+        item.setFont(font)
         self.accounts_list.setIconSize(QSize(40, 40))
       if size == "large":
         item.setData(13, QSize(0, 60))
-        item.setFont(QFont("", 18))
+        font.setPixelSize(18)
+        item.setFont(font)
         self.accounts_list.setIconSize(QSize(60, 60))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
