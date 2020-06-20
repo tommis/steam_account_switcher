@@ -26,6 +26,7 @@ class SteamSwitcher:
   settings: dict
   settings_file: str
   steam_skins: []
+  default_avatar: str
   first_run: bool
 
   def __init__(self):
@@ -37,6 +38,7 @@ class SteamSwitcher:
     else:
       self.skins_dir = os.path.join(self.steam_linux_dir, "skins")
     self.steam_skins = self.get_steam_skins()
+    self.default_avatar = os.path.join(self.changer_path, "avatars/avatar.png")
 
   def _load_registry(self):
     self.system_os = platform.system()
@@ -125,7 +127,7 @@ class SteamSwitcher:
     if not api_key:
       raise Exception("No steam_api_key defined")
     if not uids:
-      uids = [ user.get("steam_uid") for user in self.settings["users"].values() if user.get("steam_uid") != None ]
+      uids = [ user.get("steam_uid") for user in self.settings["users"].values() if user.get("steam_uid") ]
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
     response = requests.get(api_url, params={"key": api_key, "steamids": ','.join(uids)})
     if response.status_code == 200 and response.json()["response"]["players"]:
@@ -220,11 +222,11 @@ class SteamSwitcher:
             continue
           else:
             print("Avatar download error")
-            r[login_name] = os.path.join(self.changer_path, "avatars/avatar.png")
+            r[login_name] = self.default_avatar
         except KeyError:
           print("EEROREREQWRJKOJQAWJERKOJAOWEKSRJ")
       else:
-        r[login_name] = os.path.join(self.changer_path, "avatars/avatar.png")
+        r[login_name] = self.default_avatar
     return r
 
   def sync_steam_autologin_accounts(self):

@@ -274,6 +274,11 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.tray_icon.hide()
 
   @Slot()
+  def set_after_login_action(self, item):
+    self.switcher.settings["behavior_after_login"] = item.data()
+    self.switcher.settings_write()
+
+  @Slot()
   def set_size(self, size):
     print("Set size {0}".format(size))
     self.switcher.settings["display_size"] = size
@@ -389,7 +394,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       item = QListWidgetItem()
       item.setData(0, account)
       if self.switcher.settings.get("show_avatars"):
-        item.setData(1, QIcon(avatars.get(login_name)))
+        item.setData(1, QIcon(avatars.get(login_name, self.switcher.default_avatar)))
       item.setData(2, str(account.get("steam_name", login_name)))
       item.setData(3, account.get("comment"))
       item.setData(5, login_name)
