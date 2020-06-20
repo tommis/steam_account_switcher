@@ -26,9 +26,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   def __init__(self):
     QMainWindow.__init__(self)
     self.setWindowTitle("Steam Account Switcher")
-    self.setMinimumHeight(300)
-    self.setMinimumWidth(300)
-    self.setMaximumWidth(300)
+    self.setMinimumSize(300, 300)
 
     switcher_logo = QIcon("logo.png")
     self.setWindowIcon(switcher_logo)
@@ -284,7 +282,12 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     user["steam_skin"] = steam_skin_select.currentText()
 
-    self.submit_button.clicked.connect(lambda: self.save_account(account_name_edit.text(), user, login_name if not new_account else None))
+    def update_user(user: dict) -> dict:
+      user["comment"] = comment_edit.text()
+      user["steam_skin"] = steam_skin_select.currentText()
+      return user
+
+    self.submit_button.clicked.connect(lambda: self.save_account(account_name_edit.text(), update_user(user), login_name if not new_account else None))
     close_button.clicked.connect(self.account_dialog_window.close)
 
     buttons = QHBoxLayout()
