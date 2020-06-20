@@ -98,10 +98,16 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.switcher = SteamSwitcher()
     self.load_accounts()
 
+    def edit_button_enabled():
+      if self.accounts_list.selectedItems():
+        self.edit_button.setEnabled(True)
+      else:
+        self.edit_button.setEnabled(False)
+
     # Signals and Slots
     self.add_button.clicked.connect(lambda: self.account_dialog(True))
     self.edit_button.clicked.connect(lambda: self.account_dialog(False))
-    self.accounts_list.itemSelectionChanged.connect(self.edit_button_enabled)
+    self.accounts_list.itemSelectionChanged.connect(edit_button_enabled)
     self.accounts_list.doubleClicked.connect(self.steam_login)
     #self.accounts_list.dragMoveEvent.connect()
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -209,20 +215,6 @@ class SteamAccountSwitcherGui(QMainWindow):
   def account_reordered(self, account):
     print(account)
 
-  @Slot()
-  def edit_button_enabled(self):
-    if self.accounts_list.selectedItems():
-      self.edit_button.setEnabled(True)
-    else:
-      self.edit_button.setEnabled(False)
-
-  @Slot()
-  def submit_enabled(self, item):
-    if len(item) > 3:
-      self.submit_button.setEnabled(True)
-    else:
-      self.submit_button.setEnabled(False)
-
   def save_account(self, login_name, user, old_login_name):
     self.switcher.add_account(login_name, user, old_login_name)
 
@@ -270,9 +262,14 @@ class SteamAccountSwitcherGui(QMainWindow):
       else:
         steam_skin_select.setCurrentIndex(1)
 
-    account_name_edit.setPlaceholderText("Login name")
-    account_name_edit.textChanged.connect(self.submit_enabled)
+    def submit_enabled(item):
+      if len(item) > 3:
+        self.submit_button.setEnabled(True)
+      else:
+        self.submit_button.setEnabled(False)
 
+    account_name_edit.setPlaceholderText("Login name")
+    account_name_edit.textChanged.connect(submit_enabled)
 
     close_button = QPushButton("Close")
 
