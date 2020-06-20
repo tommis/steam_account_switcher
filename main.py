@@ -8,7 +8,7 @@ import platform
 import logging
 
 from PySide2.QtCore import Slot, QSize
-from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt
+from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QVBoxLayout, QWidget, QListWidget, QDialog, QTextEdit, QListWidgetItem, QGroupBox,
@@ -324,10 +324,16 @@ class SteamAccountSwitcherGui(QMainWindow):
       item.setData(5, login_name)
       if size == "small":
         item.setData(13, QSize(0, 20))
+        item.setFont(QFont("", 10))
+        self.accounts_list.setIconSize(QSize(20, 20))
       if size == "medium":
         item.setData(13, QSize(0, 40))
+        item.setFont(QFont("", 14))
+        self.accounts_list.setIconSize(QSize(40, 40))
       if size == "large":
         item.setData(13, QSize(0, 60))
+        item.setFont(QFont("", 18))
+        self.accounts_list.setIconSize(QSize(60, 60))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 
