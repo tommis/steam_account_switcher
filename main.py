@@ -204,21 +204,25 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def about_dialog(self):
     dialog = QDialog(self)
-    dialog.setWindowTitle("Steam api key")
-    #dialog.setFixedSize(220, 60)
+    dialog.setWindowTitle("About")
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
 
-    text_label = QLabel("Steam account switcher\nAuthor: Tommi Saira <tommi@saira.fi>\nUrl: github.com")
+    text_label = QLabel("Steam account switcher\nAuthor: Tommi Saira <tommi@saira.fi>")
+    url_text_label = QLabel("Url: <a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>")
+
+    url_text_label.setOpenExternalLinks(True)
+
     layout.addWidget(text_label)
+    layout.addWidget(url_text_label)
 
     dialog.show()
 
   @Slot()
   def steamapi_key_dialog(self):
     dialog = QDialog(self)
-    dialog.setWindowTitle("Steamapi_key")
+    dialog.setWindowTitle("Set steamapi key")
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
