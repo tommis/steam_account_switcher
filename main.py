@@ -12,7 +12,7 @@ from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QVBoxLayout, QWidget, QListWidget, QDialog, QTextEdit, QListWidgetItem, QGroupBox,
-                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon)
+                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon, QStyle)
 
 from steamswitcher import SteamSwitcher
 
@@ -32,17 +32,20 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.setWindowIcon(switcher_logo)
     if platform.system() == "Windows":
       import ctypes
-      win_appid = 'github.tommis.steam_account_switcher.z'
+      win_appid = 'github.tommis.steam_account_switcher'
       ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(win_appid)
+
+    self.switcher = SteamSwitcher()
+    self.main_widget = QWidget()
+    self.systemtray(self.main_widget)
 
     # Menu
     self.menu = self.menuBar()
     self.file_menu = self.menu.addMenu("File")
+    self.settings_menu = self.menu.addMenu("Settings")
     self.size_menu = self.menu.addMenu("Size")
 
-    settings_action = QAction("Settings", self, )
-    settings_action.triggered.connect(self.settings_dialog)
-    refresh_action = QAction("refresh", self)
+    refresh_action = QAction("Refresh", self)
     refresh_action.triggered.connect(self.steamapi_refresh)
     open_skinsdir_action = QAction("Skins dir", self)
     open_skinsdir_action.triggered.connect(self.open_skinsdir)
@@ -54,12 +57,29 @@ class SteamAccountSwitcherGui(QMainWindow):
     refresh_action.setShortcut("F5")
     exit_action.setShortcut("Ctrl+Q")
 
-    self.file_menu.addAction(settings_action)
     self.file_menu.addAction(refresh_action)
     self.file_menu.addAction(open_skinsdir_action)
     self.file_menu.addAction(about_action)
     self.file_menu.addSeparator()
     self.file_menu.addAction(exit_action)
+
+    set_steamapi_key = QAction("Set steamapi key", self)
+    show_avatars = QAction("Show avatars", self, checkable=True)
+    use_systemtray = QAction("Use systemtray", self, checkable=True)
+
+    show_avatars.setChecked(self.switcher.settings.get("show_avatars"))
+    use_systemtray.setChecked(self.switcher.settings.get("use_systemtray"))
+    if self.switcher.settings.get("use_systemtray"):
+      self.tray_icon.show()
+
+    set_steamapi_key.triggered.connect(lambda: self.steamapi_key_dialog())
+    show_avatars.triggered.connect(lambda: self.set_show_avatars())
+    use_systemtray.triggered.connect(lambda: self.set_use_systemtray())
+
+    self.settings_menu.addAction(set_steamapi_key)
+    self.settings_menu.addSeparator()
+    self.settings_menu.addAction(show_avatars)
+    self.settings_menu.addAction(use_systemtray)
 
     set_size_small = QAction("Small", self)
     set_size_medium = QAction("Medium", self)
@@ -83,7 +103,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.buttons.addWidget(self.add_button)
     self.buttons.addWidget(self.edit_button)
 
-    self.main_widget = QWidget()
     self.layout = QVBoxLayout()
     self.main_widget.setLayout(self.layout)
 
@@ -95,7 +114,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.layout.addWidget(self.accounts_list)
     self.layout.addLayout(self.buttons)
 
-    self.switcher = SteamSwitcher()
     self.load_accounts()
 
     def edit_button_enabled():
@@ -112,15 +130,14 @@ class SteamAccountSwitcherGui(QMainWindow):
     #self.accounts_list.dragMoveEvent.connect()
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
     self.accounts_list.customContextMenuRequested.connect(self.show_rightclick_menu)
-    #self.accounts_list.layoutChanged.connect(self.account_reordered)
-
-    # System tray
-    if self.switcher.settings.get("use_systemtray"):
-      self.systemtray(self.main_widget)
+    #self.accounts_list.layoutChanged.connect(lambda: self.account_reordered)
 
     self.setCentralWidget(self.main_widget)
 
     self.show()
+
+    if self.switcher.first_run:
+      self.steamapi_key_dialog()
 
   @Slot()
   def exit_app(self):
@@ -170,11 +187,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.load_accounts()
 
   @Slot()
-  def settings_dialog(self):
-    logging.info("Opened settings")
-    raise NotImplementedError("settings not done yet")
-
-  @Slot()
   def open_skinsdir(self):
     if self.switcher.system_os == "Windows":
         os.startfile(self.switcher.skins_dir)
@@ -188,13 +200,12 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.tray_menu.addSeparator()
     self.tray_menu.addAction("Exit", self.exit_app)
     self.tray_icon.setContextMenu(self.tray_menu)
-    self.tray_icon.show()
 
   @Slot()
   def about_dialog(self):
     dialog = QDialog(self)
-    dialog.setWindowTitle("About")
-    dialog.setFixedSize(220, 60)
+    dialog.setWindowTitle("Steam api key")
+    #dialog.setFixedSize(220, 60)
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
@@ -203,6 +214,58 @@ class SteamAccountSwitcherGui(QMainWindow):
     layout.addWidget(text_label)
 
     dialog.show()
+
+  @Slot()
+  def steamapi_key_dialog(self):
+    dialog = QDialog(self)
+    dialog.setWindowTitle("Steamapi_key")
+
+    layout = QVBoxLayout()
+    dialog.setLayout(layout)
+
+    text_label = QLabel("Used for getting avatars. Get yours from steam https://steamcommunity.com/deva/pikey")
+    apikey_edit = QLineEdit()
+    save_button = QPushButton("Save")
+
+    apikey_edit.setText(self.switcher.settings.get("steam_api_key"))
+
+    layout.addWidget(text_label)
+    layout.addWidget(apikey_edit)
+    layout.addWidget(save_button)
+
+    def save_enabled():
+      if len(apikey_edit.text()) == 32:
+        save_button.setEnabled(True)
+      else:
+        save_button.setEnabled(False)
+
+    def save():
+      self.switcher.settings["steam_api_key"] = apikey_edit.text()
+      self.switcher.settings_write()
+      dialog.hide()
+
+    save_enabled()
+
+    apikey_edit.textChanged.connect(lambda: save_enabled())
+    save_button.clicked.connect(lambda: save())
+
+    dialog.show()
+
+  @Slot()
+  def set_show_avatars(self):
+    self.switcher.settings["show_avatars"] = not self.switcher.settings.get("show_avatars")
+    self.switcher.settings_write()
+    self.load_accounts()
+
+  @Slot()
+  def set_use_systemtray(self):
+    use_systemtray = not self.switcher.settings.get("use_systemtray")
+    self.switcher.settings["use_systemtray"] = use_systemtray
+    self.switcher.settings_write()
+    if use_systemtray:
+      self.tray_icon.show()
+    else:
+      self.tray_icon.hide()
 
   @Slot()
   def set_size(self, size):

@@ -26,9 +26,10 @@ class SteamSwitcher:
   settings: dict
   settings_file: str
   steam_skins: []
-
+  first_run: bool
 
   def __init__(self):
+    self.first_run = False
     self._load_registry()
     self.settings = self._load_settings()
     if self.system_os == "Windows":
@@ -65,6 +66,7 @@ class SteamSwitcher:
         return json.load(settings_file)
     except FileNotFoundError:
       print("Settings file not found, creating...")
+      self.first_run = True
       self.settings_write(True)
       return self._load_settings()
     except json.JSONDecodeError:
