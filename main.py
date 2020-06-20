@@ -215,8 +215,8 @@ class SteamAccountSwitcherGui(QMainWindow):
   def account_reordered(self, account):
     print(account)
 
-  def save_account(self, login_name, user, old_login_name):
-    self.switcher.add_account(login_name, user, old_login_name)
+  def save_account(self, login_name, user, original_login_name = None):
+    self.switcher.add_account(login_name, user, original_login_name)
 
     self.load_accounts()
     self.account_dialog_window.close()
@@ -251,10 +251,10 @@ class SteamAccountSwitcherGui(QMainWindow):
     else:
       user = self.switcher.settings["users"].get(self.accounts_list.currentItem().data(5), {})
 
-      login_name = self.accounts_list.currentItem().data(5)
-      self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name))
+      login_name_selected = self.accounts_list.currentItem().data(5)
+      self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name_selected))
       self.submit_button = QPushButton("Edit")
-      account_name_edit.setText(login_name)
+      account_name_edit.setText(login_name_selected)
       comment_edit.setText(user.get("comment"))
       steam_skin_select_index = steam_skin_select.findText(user.get("steam_skin", "default"))
       if steam_skin_select_index != -1:
@@ -284,7 +284,8 @@ class SteamAccountSwitcherGui(QMainWindow):
       user["steam_skin"] = steam_skin_select.currentText()
       return user
 
-    self.submit_button.clicked.connect(lambda: self.save_account(account_name_edit.text(), update_user(user), login_name if not new_account else None))
+    self.submit_button.clicked.connect(lambda:self.save_account(account_name_edit.text(),
+                                                                update_user(user), login_name_selected if not new_account else None))
     close_button.clicked.connect(self.account_dialog_window.close)
 
     buttons = QHBoxLayout()

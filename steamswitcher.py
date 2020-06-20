@@ -153,7 +153,7 @@ class SteamSwitcher:
     else:
         raise ValueError
 
-  def add_account(self, login_name, user, old_login_name = None):
+  def add_account(self, login_name, user, original_login_name = None):
     user = {
       "comment": user.get("comment", ""),
       "display_order": len(self.settings["users"]) + 1,
@@ -161,14 +161,13 @@ class SteamSwitcher:
       "steam_skin": user.get("steam_skin", ""),
       "steam_user": user.get("steam_user", {})
     }
-    if old_login_name:
-      self.settings["users"].pop(old_login_name)
-      if old_login_name is not login_name:
-        try:
-          user.pop("steam_user")
-          user.pop("steam_name")
-        except Exception:
-          print("ERROR")
+    if original_login_name and login_name != original_login_name:
+      try:
+        user.pop("steam_user")
+        user.pop("steam_name")
+      except KeyError:
+        pass
+      self.settings["users"].pop(original_login_name)
 
     self.settings["users"][login_name] = user
 
