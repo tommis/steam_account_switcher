@@ -229,13 +229,13 @@ class SteamAccountSwitcherGui(QMainWindow):
     layout = QVBoxLayout()
     dialog.setLayout(layout)
 
-    text_label = QLabel("Steam account switcher\nAuthor: Tommi Saira <tommi@saira.fi>")
-    url_text_label = QLabel("Url: <a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>")
+    text_label = QLabel("Steam account switcher<br>"
+                        "Author: Tommi Saira &lt;tommi@saira.fi&gt;<br>"
+                        "Url: <a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>")
 
-    url_text_label.setOpenExternalLinks(True)
+    text_label.setOpenExternalLinks(True)
 
     layout.addWidget(text_label)
-    layout.addWidget(url_text_label)
 
     dialog.show()
 
