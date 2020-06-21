@@ -76,10 +76,10 @@ class SteamSwitcher:
 
   def settings_write(self, new=False):
     empty_settings = {
+      "steam_api_key": "",
       "behavior_after_login": "minimize",
       "theme": "dark",
-      "display_size": "small",
-      "steam_api_key": "",
+      "display_size": "medium",
       "show_avatars": True,
       "use_systemtray": True,
       "users": {}

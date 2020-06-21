@@ -36,6 +36,7 @@ Flags  (TODO)
 
 `settings.json` inside program install dir.
 
+- `"steam_api_key"` used for getting steam avatars and profile pages. Get yours from [steam](https://steamcommunity.com/dev/apikey)
 - `"behavior_after_login"` values:
     - *minimize* (default)
     - *close*
@@ -44,9 +45,12 @@ Flags  (TODO)
 - `"theme"` values:
     - *dark* (default)
     - *light*
+- `"display_size"` values:
+    - *small*
+    - *medium* (default)
+    - *large*
 - `"show_avatars"` *boolean* true by default
 - `"use_systemtray"` *boolean* true by default
-- `"steam_api_key"` used for getting steam avatars and profile pages. Get yours from [steam](https://steamcommunity.com/dev/apikey)
 - `"users"` object
     - `login_name` the unique name you use for login
         - `comment` free text to display in list
