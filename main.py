@@ -81,9 +81,15 @@ class SteamAccountSwitcherGui(QMainWindow):
     after_login_menu.addAction(minimize_behaviour)
     after_login_menu.addAction(minimize_tray_behaviour)
 
-    after_login_menu.triggered.connect(self.set_after_login_action)
+    behaviour_switcher = {
+      "close": lambda: close_behaviour.setChecked(True),
+      "minimize": lambda: minimize_behaviour.setChecked(True),
+      "minimize_tray": lambda: minimize_tray_behaviour.setChecked(True)
+    }
+    active_behaviour = behaviour_switcher.get(self.switcher.settings["behavior_after_login"], lambda: nothing_behaviour.setChecked(True))
+    active_behaviour()
 
-    behaviour = self.switcher.settings["behavior_after_login"]
+    after_login_menu.triggered.connect(self.set_after_login_action)
 
     show_avatars.setChecked(self.switcher.settings.get("show_avatars"))
     use_systemtray.setChecked(self.switcher.settings.get("use_systemtray"))
@@ -207,6 +213,48 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.load_accounts()
 
   @Slot()
+  def import_accounts_dialog(self):
+    dialog = QDialog(self)
+    dialog.setWindowTitle("Import accounts")
+
+    dialog.setMinimumWidth(400)
+
+    layout = QVBoxLayout()
+    dialog.setLayout(layout)
+
+    text_label = QLabel("Select accounts to import")
+    import_accounts_list = QTreeView()
+    import_button = QPushButton("Import")
+
+    #import_accounts_list.setSelectionBehavior()
+    model = QStandardItemModel()
+    model.setHorizontalHeaderLabels(['Login name', 'Steam name', 'Steam UID'])
+    import_accounts_list.setModel(model)
+    import_accounts_list.setUniformRowHeights(True)
+    import_accounts_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
+    import_accounts_list.setSelectionMode(QTreeView.MultiSelection)
+    layout.addWidget(text_label)
+    layout.addWidget(import_accounts_list)
+    layout.addWidget(import_button)
+
+
+    accounts = []
+    for uid, login_name, steam_name in self.switcher.get_steamuids():
+      accounts.append({"uid": uid, "login_name": login_name})
+      login_name_col = QStandardItem(login_name)
+      steam_name_col = QStandardItem(steam_name)
+      uid_col = QStandardItem(uid)
+
+      model.appendRow([login_name_col, steam_name_col, uid_col])
+
+    def import_accounts():
+      print(model)
+
+    import_button.clicked.connect(lambda: import_accounts())
+
+    dialog.show()
+
+  @Slot()
   def open_skinsdir(self):
     if self.switcher.system_os == "Windows":
         os.startfile(self.switcher.skins_dir)
@@ -216,7 +264,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   def systemtray(self, parent=None):
     self.tray_icon = QSystemTrayIcon(QIcon("logo.png"), parent)
     self.tray_menu = QMenu(parent)
-    self.tray_menu.addAction("Open", self.show)
+    self.tray_menu.addAction("Open", self.show())
     self.tray_menu.addSeparator()
     self.tray_menu.addAction("Exit", self.exit_app)
     self.tray_icon.setContextMenu(self.tray_menu)
@@ -241,7 +289,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def steamapi_key_dialog(self):
-    dialog = QDialog(self)
+    dialog = QDialog()
     dialog.setWindowTitle("Set steamapi key")
 
     layout = QVBoxLayout()
