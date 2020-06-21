@@ -197,6 +197,7 @@ class SteamSwitcher:
     for uid, user in loginusers.items():
       if not len(uid) == 17 and uid.isnumeric():
         raise Exception("UID: {0} doesn't seem like steam id".format(uid))
+      yield uid, user["AccountName"], user["PersonaName"]
       if user["AccountName"] in self.settings["users"]:
         self.settings["users"][user["AccountName"]]["steam_uid"] = uid
         self.settings["users"][user["AccountName"]]["steam_name"] = user["PersonaName"]

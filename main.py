@@ -8,11 +8,12 @@ import platform
 import logging
 
 from PySide2.QtCore import Slot, QSize
-from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont
+from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont, QStandardItem, QStandardItemModel
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QVBoxLayout, QWidget, QListWidget, QDialog, QTextEdit, QListWidgetItem, QGroupBox,
-                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon, QStyle, QActionGroup)
+                               QComboBox, QMenu, QAbstractItemView, QListView, QSystemTrayIcon, QStyle, QActionGroup,
+                               QTableView, QTreeView)
 
 from steamswitcher import SteamSwitcher
 
@@ -47,6 +48,8 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     refresh_action = QAction("Refresh", self)
     refresh_action.triggered.connect(self.steamapi_refresh)
+    import_action = QAction("Import accounts", self)
+    import_action.triggered.connect(self.import_accounts_dialog)
     open_skinsdir_action = QAction("Skins dir", self)
     open_skinsdir_action.triggered.connect(self.open_skinsdir)
     about_action = QAction("About", self)
@@ -58,6 +61,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     exit_action.setShortcut("Ctrl+Q")
 
     self.file_menu.addAction(refresh_action)
+    self.file_menu.addAction(import_action)
     self.file_menu.addAction(open_skinsdir_action)
     self.file_menu.addAction(about_action)
     self.file_menu.addSeparator()
