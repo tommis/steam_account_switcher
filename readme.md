@@ -31,36 +31,6 @@ Flags  (TODO)
 * `-list`
 * `-about`
 
-
-## Settings file
-
-`settings.json` inside program install dir.
-
-- `"steam_api_key"` used for getting steam avatars and profile pages. Get yours from [steam](https://steamcommunity.com/dev/apikey)
-- `"behavior_after_login"` values:
-    - *minimize* (default)
-    - *close*
-    - *minimize_tray*
-    - leave empty for nothing
-- `"theme"` values:
-    - *dark* (default)
-    - *light*
-- `"display_size"` values:
-    - *small*
-    - *medium* (default)
-    - *large*
-- `"show_avatars"` *boolean* true by default
-- `"use_systemtray"` *boolean* true by default
-- `"users"` object
-    - `login_name` the unique name you use for login
-        - `comment` free text to display in list
-        - `display_order` position in witch to display account
-        - `steam_skin` name of theme you want this account to use
-            - `C:\Program Files (x86)\Steam\skins` on windows
-            - `~/.steam/skins` or `~/.local/share/Steam/skins/` on Linux
-        - `steam_user` object returned by [ISteamUser#GetPlayerSummaries](https://partner.steamgames.com/doc/webapi/ISteamUser#GetPlayerSummaries)
-        - `timestamp` unix time at the time of addition
-
 ## TODO
 
 - [ ] Command line interface
