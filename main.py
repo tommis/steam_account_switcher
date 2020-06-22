@@ -60,10 +60,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     refresh_action.setShortcut("F5")
     exit_action.setShortcut("Ctrl+Q")
 
-    self.file_menu.addAction(refresh_action)
-    self.file_menu.addAction(import_action)
-    self.file_menu.addAction(open_skinsdir_action)
-    self.file_menu.addAction(about_action)
+    self.file_menu.addActions([refresh_action, import_action, open_skinsdir_action, about_action])
     self.file_menu.addSeparator()
     self.file_menu.addAction(exit_action)
 
@@ -71,19 +68,15 @@ class SteamAccountSwitcherGui(QMainWindow):
     show_avatars = QAction("Show avatars", self, checkable=True)
     use_systemtray = QAction("Use systemtray", self, checkable=True)
 
-    after_login_menu = QMenu("After login", self)
+    after_login_menu = QMenu("After login")
 
-    after_login_behaviour_group = QActionGroup(after_login_menu, exclusive=True)
-
+    after_login_behaviour_group = QActionGroup(after_login_menu)
     nothing_behaviour = QAction('Nothing', after_login_behaviour_group, checkable=True, data="")
     close_behaviour = QAction('Close', after_login_behaviour_group, checkable=True, data="close")
     minimize_behaviour = QAction('Minimize', after_login_behaviour_group, checkable=True, data="minimize")
     minimize_tray_behaviour = QAction('Minimize to tray', after_login_behaviour_group, checkable=True, data="minimize_tray")
 
-    after_login_menu.addAction(nothing_behaviour)
-    after_login_menu.addAction(close_behaviour)
-    after_login_menu.addAction(minimize_behaviour)
-    after_login_menu.addAction(minimize_tray_behaviour)
+    after_login_menu.addActions([nothing_behaviour,  close_behaviour, minimize_behaviour, minimize_tray_behaviour])
 
     behaviour_switcher = {
       "close": lambda: close_behaviour.setChecked(True),
@@ -106,8 +99,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     self.settings_menu.addAction(set_steamapi_key)
     self.settings_menu.addSeparator()
-    self.settings_menu.addAction(show_avatars)
-    self.settings_menu.addAction(use_systemtray)
+    self.settings_menu.addActions([show_avatars, use_systemtray])
     self.settings_menu.addMenu(after_login_menu)
 
     set_size_small = QAction("Small", self)
@@ -116,9 +108,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     set_size_small.triggered.connect(lambda: self.set_size("small"))
     set_size_medium.triggered.connect(lambda: self.set_size("medium"))
     set_size_large.triggered.connect(lambda: self.set_size("large"))
-    self.size_menu.addAction(set_size_small)
-    self.size_menu.addAction(set_size_medium)
-    self.size_menu.addAction(set_size_large)
+    self.size_menu.addActions([set_size_small, set_size_medium, set_size_large])
 
     set_size_small.setShortcut("Ctrl+1")
     set_size_medium.setShortcut("Ctrl+2")
@@ -188,9 +178,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     delete_action.setIcon(QIcon.fromTheme("edit-delete"))
     open_profile_action.setIcon(QIcon.fromTheme("document-open"))
 
-    right_menu.addAction(login_action)
-    right_menu.addAction(edit_action)
-    right_menu.addAction(delete_action)
+    right_menu.addActions([login_action, edit_action, delete_action])
     right_menu.addSeparator()
     right_menu.addAction(open_profile_action)
 
@@ -240,7 +228,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     layout.addWidget(text_label)
     layout.addWidget(import_accounts_list)
     layout.addWidget(import_button)
-
 
     accounts = []
     for uid, login_name, steam_name in self.switcher.get_steamuids():
@@ -351,7 +338,6 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def set_size(self, size):
-    print("Set size {0}".format(size))
     self.switcher.settings["display_size"] = size
     self.switcher.settings_write()
     self.load_accounts()
@@ -496,6 +482,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
 if __name__ == "__main__":
   app = QApplication(sys.argv)
+  app.setQuitOnLastWindowClosed(False)
 
   window = SteamAccountSwitcherGui()
 
