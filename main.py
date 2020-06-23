@@ -167,6 +167,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu = QMenu()
 
     selected = self.accounts_list.currentItem()
+    if not selected:
+      return
     login_name = selected.data(5)
     account = self.switcher.settings["users"].get(login_name, {})
 
