@@ -19,12 +19,11 @@ from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, 
 
 from steamswitcher import SteamSwitcher
 
-#i18n = gettext.translation('sas', localedir='locales', languages=['en-US','fi-FI'])
-#_ = i18n.gettext
+i18n = gettext.translation('main', localedir='locales', languages=['en','fi'])
+_ = i18n.gettext
 
-def _(a):
-  return a
-
+#def _(a):
+#  return a
 
 class SteamAccountSwitcherGui(QMainWindow):
   account_dialog_window: QDialog
@@ -57,11 +56,11 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.settings_menu = self.menu.addMenu(_("Settings"))
     self.size_menu = self.menu.addMenu(_("Size"))
 
-    refresh_action = QAction("Refresh", self)
-    import_action = QAction("Import accounts", self)
-    open_skinsdir_action = QAction("Skins dir", self)
-    about_action = QAction("About", self)
-    exit_action = QAction("Exit", self)
+    refresh_action = QAction(_("Refresh"), self)
+    import_action = QAction(_("Import accounts"), self)
+    open_skinsdir_action = QAction(_("Skins dir"), self)
+    about_action = QAction(_("About"), self)
+    exit_action = QAction(_("Exit"), self)
 
     refresh_action.triggered.connect(self.steamapi_refresh)
     import_action.triggered.connect(lambda: self.import_accounts_dialog())
@@ -76,17 +75,17 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.file_menu.addSeparator()
     self.file_menu.addAction(exit_action)
 
-    set_steamapi_key = QAction("Set steamapi key", self)
-    show_avatars = QAction("Show avatars", self, checkable=True)
-    use_systemtray = QAction("Use systemtray", self, checkable=True)
+    set_steamapi_key = QAction(_("Set steamapi key"), self)
+    show_avatars = QAction(_("Show avatars"), self, checkable=True)
+    use_systemtray = QAction(_("Use systemtray"), self, checkable=True)
 
-    after_login_menu = QMenu("After login")
+    after_login_menu = QMenu(_("After login"))
 
     after_login_behaviour_group = QActionGroup(after_login_menu)
-    nothing_behaviour = QAction('Nothing', after_login_behaviour_group, checkable=True, data="")
-    close_behaviour = QAction('Close', after_login_behaviour_group, checkable=True, data="close")
-    minimize_behaviour = QAction('Minimize', after_login_behaviour_group, checkable=True, data="minimize")
-    minimize_tray_behaviour = QAction('Minimize to tray', after_login_behaviour_group, checkable=True, data="minimize_tray")
+    nothing_behaviour = QAction(_('Nothing'), after_login_behaviour_group, checkable=True, data="")
+    close_behaviour = QAction(_('Close'), after_login_behaviour_group, checkable=True, data="close")
+    minimize_behaviour = QAction(_('Minimize'), after_login_behaviour_group, checkable=True, data="minimize")
+    minimize_tray_behaviour = QAction(_('Minimize to tray'), after_login_behaviour_group, checkable=True, data="minimize_tray")
 
     after_login_menu.addActions([nothing_behaviour,  close_behaviour, minimize_behaviour, minimize_tray_behaviour])
 
@@ -114,9 +113,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     show_avatars.setChecked(self.switcher.settings.get("show_avatars"))
     use_systemtray.setChecked(self.switcher.settings.get("use_systemtray"))
 
-    set_size_small = QAction("Small", self)
-    set_size_medium = QAction("Medium", self)
-    set_size_large = QAction("Large", self)
+    set_size_small = QAction(_("Small"), self)
+    set_size_medium = QAction(_("Medium"), self)
+    set_size_large = QAction(_("Large"), self)
     set_size_small.triggered.connect(lambda: self.set_size("small"))
     set_size_medium.triggered.connect(lambda: self.set_size("medium"))
     set_size_large.triggered.connect(lambda: self.set_size("large"))
@@ -126,8 +125,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     set_size_medium.setShortcut("Ctrl+2")
     set_size_large.setShortcut("Ctrl+3")
 
-    self.add_button = QPushButton("Add account")
-    self.edit_button = QPushButton("Edit account")
+    self.add_button = QPushButton(_("Add account"))
+    self.edit_button = QPushButton(_("Edit account"))
     self.edit_button.setDisabled(True)
 
     self.buttons = QHBoxLayout()
@@ -185,10 +184,10 @@ class SteamAccountSwitcherGui(QMainWindow):
     login_name = selected.data(5)
     account = self.switcher.settings["users"].get(login_name, {})
 
-    login_action = QAction("Login", self)
-    edit_action = QAction("Edit", self)
-    delete_action = QAction("Delete", self)
-    open_profile_action = QAction("Steam profile", self)
+    login_action = QAction(_("Login"), self)
+    edit_action = QAction(_("Edit"), self)
+    delete_action = QAction(_("Delete"), self)
+    open_profile_action = QAction(_("Steam profile"), self)
 
     delete_action.setIcon(QIcon.fromTheme("edit-delete"))
     open_profile_action.setIcon(QIcon.fromTheme("document-open"))
@@ -223,19 +222,19 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def import_accounts_dialog(self):
     dialog = QDialog(self)
-    dialog.setWindowTitle("Import accounts")
+    dialog.setWindowTitle(_("Import accounts"))
 
     dialog.setMinimumWidth(400)
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
 
-    text_label = QLabel("Select accounts to import")
+    text_label = QLabel(_("Select accounts to import"))
     import_accounts_list = QTreeView()
     import_button = QPushButton()
 
     model = QStandardItemModel()
-    model.setHorizontalHeaderLabels(['Login name', 'Steam name', 'Steam UID'])
+    model.setHorizontalHeaderLabels([_('Login name'), _('Steam name'), _('Steam UID')])
     import_accounts_list.setModel(model)
     import_accounts_list.setUniformRowHeights(True)
     import_accounts_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -272,7 +271,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     def button_enabled():
       num_selected = len(import_accounts_list.selectionModel().selectedRows())
-      import_button.setText("Import {0} accounts".format(num_selected))
+      import_button.setText(_("Import {0} accounts").format(num_selected))
       if num_selected:
         import_button.setEnabled(True)
       else:
@@ -298,7 +297,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.tray_icon.activated.connect(self.show)
     self.tray_menu.addMenu(self.settings_menu)
     self.tray_menu.addSeparator()
-    self.tray_menu.addAction("Exit", self.exit_app)
+    self.tray_menu.addAction(_("Exit"), self.exit_app)
     self.tray_icon.setContextMenu(self.tray_menu)
 
   @Slot()
@@ -309,9 +308,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     layout = QVBoxLayout()
     dialog.setLayout(layout)
 
-    text_label = QLabel("Steam account switcher<br>"
+    text_label = QLabel(_("Steam account switcher<br>"
                         "Author: Tommi Saira &lt;tommi@saira.fi&gt;<br>"
-                        "Url: <a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>")
+                        "Url: <a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>"))
 
     text_label.setOpenExternalLinks(True)
 
@@ -322,14 +321,14 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def steamapi_key_dialog(self):
     dialog = QDialog()
-    dialog.setWindowTitle("Set steamapi key")
+    dialog.setWindowTitle(_("Set steamapi key"))
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
 
-    text_label = QLabel("Used for getting avatars. Get yours from <a href='https://steamcommunity.com/dev/apikey'>steam</a>")
+    text_label = QLabel(_("Used for getting avatars. Get yours from <a href='https://steamcommunity.com/dev/apikey'>steam</a>"))
     apikey_edit = QLineEdit()
-    save_button = QPushButton("Save")
+    save_button = QPushButton(_("Save"))
 
     text_label.setOpenExternalLinks(True)
     apikey_edit.setText(self.switcher.settings.get("steam_api_key"))
@@ -414,25 +413,25 @@ class SteamAccountSwitcherGui(QMainWindow):
     account_name_edit = QLineEdit()
 
     comment_edit = QLineEdit()
-    comment_edit.setPlaceholderText("Comment")
+    comment_edit.setPlaceholderText(_("Comment"))
 
     steam_skin_select = QComboBox()
     steam_skin_select.addItems(self.switcher.steam_skins)
 
     if new_account:
       user = {}
-      self.account_dialog_window.setWindowTitle("Add account")
-      self.submit_button = QPushButton("Add")
+      self.account_dialog_window.setWindowTitle(_("Add account"))
+      self.submit_button = QPushButton(_("Add"))
       self.submit_button.setDisabled(True)
     else:
       login_name_selected = self.accounts_list.currentItem().data(5)
       user = self.switcher.settings["users"].get(login_name_selected, {})
 
-      self.account_dialog_window.setWindowTitle("Edit account {0}".format(login_name_selected))
-      self.submit_button = QPushButton("Edit")
+      self.account_dialog_window.setWindowTitle(_("Edit account {0}").format(login_name_selected))
+      self.submit_button = QPushButton(_("Edit"))
       account_name_edit.setText(login_name_selected)
       comment_edit.setText(user.get("comment"))
-      steam_skin_select_index = steam_skin_select.findText(user.get("steam_skin", "default"))
+      steam_skin_select_index = steam_skin_select.findText(user.get("steam_skin", _("default")))
       if steam_skin_select_index != -1:
         steam_skin_select.setCurrentIndex(steam_skin_select_index)
       else:
@@ -444,10 +443,10 @@ class SteamAccountSwitcherGui(QMainWindow):
       else:
         self.submit_button.setEnabled(False)
 
-    account_name_edit.setPlaceholderText("Login name")
+    account_name_edit.setPlaceholderText(_("Login name"))
     account_name_edit.textChanged.connect(submit_enabled)
 
-    close_button = QPushButton("Close")
+    close_button = QPushButton(_("Close"))
 
     dialog_layout.addWidget(account_name_edit)
     dialog_layout.addWidget(comment_edit)

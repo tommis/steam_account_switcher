@@ -166,11 +166,12 @@ class SteamSwitcher:
   def add_account(self, login_name, user = None, original_login_name = None):
     if not user:
       user = {}
+    skin = user.get("steam_skin", "default")
     user = {
       "comment": user.get("comment", ""),
       "display_order": len(self.settings["users"].keys()) + 1,
       "timestamp": user.get("timestamp") if user.get("timestamp") else str(int(time.time())),
-      "steam_skin": user.get("steam_skin", "default"),
+      "steam_skin": skin if skin in self.steam_skins else "default",
       "steam_uid": user.get("steam_uid", ""),
       "steam_user": user.get("steam_user", {})
     }
