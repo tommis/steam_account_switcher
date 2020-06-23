@@ -450,26 +450,30 @@ class SteamAccountSwitcherGui(QMainWindow):
     for login_name, account in sorted_users:
       item = QListWidgetItem()
       item.setData(0, account)
+      sname = str(account.get("steam_name", login_name))
       if self.switcher.settings.get("show_avatars"):
         item.setData(1, QIcon(avatars.get(login_name, self.switcher.default_avatar)))
-      item.setData(2, str(account.get("steam_name", login_name)))
       item.setData(3, account.get("comment"))
       item.setData(5, login_name)
       if size == "small":
+        display_text = sname
         item.setData(13, QSize(0, 20))
         font.setPixelSize(12)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(20, 20))
       if size == "medium":
+        display_text = sname + "\n" + account.get("comment") if account.get("comment") else sname
         item.setData(13, QSize(0, 40))
         font.setPixelSize(14)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(40, 40))
       if size == "large":
+        display_text = sname + "\n" + account.get("comment") if account.get("comment") else sname
         item.setData(13, QSize(0, 60))
         font.setPixelSize(18)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(60, 60))
+      item.setData(2, display_text)
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 
