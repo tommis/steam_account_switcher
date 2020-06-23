@@ -408,8 +408,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     dialog_layout.addWidget(comment_edit)
     dialog_layout.addWidget(steam_skin_select)
 
-    user["steam_skin"] = steam_skin_select.currentText()
-
     def update_user(user: dict) -> dict:
       user["comment"] = comment_edit.text()
       user["steam_skin"] = steam_skin_select.currentText()
@@ -461,13 +459,13 @@ class SteamAccountSwitcherGui(QMainWindow):
         font.setPixelSize(12)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(20, 20))
-      if size == "medium":
+      elif size == "medium":
         display_text = sname + "\n" + account.get("comment") if account.get("comment") else sname
         item.setData(13, QSize(0, 40))
         font.setPixelSize(14)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(40, 40))
-      if size == "large":
+      elif size == "large":
         display_text = sname + "\n" + account.get("comment") if account.get("comment") else sname
         item.setData(13, QSize(0, 60))
         font.setPixelSize(18)
