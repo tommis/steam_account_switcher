@@ -80,6 +80,7 @@ class SteamSwitcher:
       "behavior_after_login": "minimize",
       "theme": "dark",
       "display_size": "medium",
+      "show_on_startup": True,
       "show_avatars": True,
       "use_systemtray": True,
       "users": {}
@@ -122,22 +123,26 @@ class SteamSwitcher:
     elif self.system_os == "Linux":
       subprocess.Popen("/usr/bin/steam-runtime")
 
-  def get_steamapi_usersummary(self, uids: list = None) -> dict:
+  def get_steamapi_usersummary(self, uids: list = None, get_missing=False) -> dict:
     api_key = self.settings["steam_api_key"]
     if not api_key:
-      raise Exception("No steam_api_key defined")
+      return
     if not uids:
-      uids = [ user.get("steam_uid") for user in self.settings["users"].values() if user.get("steam_uid") ]
+      if get_missing:
+        uids = [ user.get("steam_uid") for user in self.settings["users"].values() if not user.get("steam_user")]
+      else:
+        uids = [ user.get("steam_uid") for user in self.settings["users"].values() ]
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
     response = requests.get(api_url, params={"key": api_key, "steamids": ','.join(uids)})
     if response.status_code == 200 and response.json()["response"]["players"]:
       for steam_user in response.json()["response"]["players"]:
         login_name, user = [ (login_name, user) for (login_name, user) in self.settings["users"].items() if user.get("steam_uid") == steam_user["steamid"] ][0]
         user["steam_user"] = steam_user
+        user["steam_name"] = steam_user.get("personaname")
         self.settings["users"][login_name] = user
       self.settings_write()
     else:
-      return {}
+      print("ERROR: downloading usersummaries")
 
 
   def set_autologin_account(self, login_name):
@@ -157,12 +162,16 @@ class SteamSwitcher:
     else:
         raise ValueError
 
-  def add_account(self, login_name, user, original_login_name = None):
+
+  def add_account(self, login_name, user = None, original_login_name = None):
+    if not user:
+      user = {}
     user = {
       "comment": user.get("comment", ""),
-      "display_order": len(self.settings["users"]) + 1,
+      "display_order": len(self.settings["users"].keys()) + 1,
       "timestamp": user.get("timestamp") if user.get("timestamp") else str(int(time.time())),
-      "steam_skin": user.get("steam_skin", ""),
+      "steam_skin": user.get("steam_skin", "default"),
+      "steam_uid": user.get("steam_uid", ""),
       "steam_user": user.get("steam_user", {})
     }
     if original_login_name and login_name != original_login_name:
@@ -182,26 +191,31 @@ class SteamSwitcher:
     self.settings["users"].pop(account_name)
     self.settings_write()
 
-  def get_steamuids(self):
+  def load_loginusers(self) -> dict:
     if self.system_os == "Windows":
       loginusers_path = os.path.join(self.steam_dir, "config/loginusers.vdf")
     else:
       loginusers_path = os.path.join(self.steam_linux_dir, "config/loginusers.vdf")
     try:
       with open(loginusers_path, encoding='utf-8') as loginusers_file:
-        loginusers = PyVDF(infile=loginusers_file).getData()["users"]
+        return PyVDF(infile=loginusers_file).getData()["users"]
     except Exception as e:
       print("loginusers.vdf load error\n{0}".format(e))
-      return ""
+
+  def update_steamuids(self, no_save=False):
+    loginusers = self.load_loginusers()
 
     for uid, user in loginusers.items():
       if not len(uid) == 17 and uid.isnumeric():
         raise Exception("UID: {0} doesn't seem like steam id".format(uid))
-      yield uid, user["AccountName"], user["PersonaName"]
-      if user["AccountName"] in self.settings["users"]:
+      #if no_save:
+      #  self.y(uid, user)
+      #  continue
+      if user["AccountName"] in self.settings["users"] and not no_save:
         self.settings["users"][user["AccountName"]]["steam_uid"] = uid
         self.settings["users"][user["AccountName"]]["steam_name"] = user["PersonaName"]
-    self.settings_write()
+    if not no_save:
+      self.settings_write()
 
   def get_steam_avatars(self, *login_names, **kwargs) -> dict:
     r = {}
