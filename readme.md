@@ -38,7 +38,7 @@ Flags  (TODO)
 - [ ] Code refactoring
 - [ ] Actually check something with tests
 - [ ] Status bar
-- [ ] Size menu
+- [X] Size menu
 - [ ] Make account reordering work
         
 ## Requirements & installation
