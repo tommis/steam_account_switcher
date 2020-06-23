@@ -6,7 +6,9 @@ import sys
 import webbrowser
 import platform
 import logging
+import gettext
 
+from PySide2 import QtGui
 from PySide2.QtCore import Slot, QSize
 from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont, QStandardItem, QStandardItemModel
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
@@ -16,6 +18,12 @@ from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, 
                                QTableView, QTreeView)
 
 from steamswitcher import SteamSwitcher
+
+#i18n = gettext.translation('sas', localedir='locales', languages=['en-US','fi-FI'])
+#_ = i18n.gettext
+
+def _(a):
+  return a
 
 
 class SteamAccountSwitcherGui(QMainWindow):
@@ -45,9 +53,9 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     # Menu
     self.menu = self.menuBar()
-    self.file_menu = self.menu.addMenu("File")
-    self.settings_menu = self.menu.addMenu("Settings")
-    self.size_menu = self.menu.addMenu("Size")
+    self.file_menu = self.menu.addMenu(_("File"))
+    self.settings_menu = self.menu.addMenu(_("Settings"))
+    self.size_menu = self.menu.addMenu(_("Size"))
 
     refresh_action = QAction("Refresh", self)
     import_action = QAction("Import accounts", self)
@@ -150,7 +158,6 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.edit_button.clicked.connect(lambda: self.account_dialog(False))
     self.accounts_list.itemSelectionChanged.connect(edit_button_enabled)
     self.accounts_list.doubleClicked.connect(self.steam_login)
-    #self.accounts_list.dragMoveEvent.connect()
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
     self.accounts_list.customContextMenuRequested.connect(self.show_rightclick_menu)
     #self.accounts_list.layoutChanged.connect(lambda: self.account_reordered)
