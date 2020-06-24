@@ -93,8 +93,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       "minimize": lambda: minimize_behaviour.setChecked(True),
       "minimize_tray": lambda: minimize_tray_behaviour.setChecked(True)
     }
-    active_behaviour = behaviour_switcher.get(self.switcher.settings["behavior_after_login"], lambda: nothing_behaviour.setChecked(True))
-    active_behaviour()
+    behaviour_switcher.get(self.switcher.settings["behavior_after_login"], lambda: nothing_behaviour.setChecked(True))()
 
     after_login_menu.triggered.connect(self.set_after_login_action)
 
