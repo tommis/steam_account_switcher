@@ -9,7 +9,7 @@ import logging
 import gettext
 
 from PySide2 import QtGui
-from PySide2.QtCore import Slot, QSize
+from PySide2.QtCore import Slot, QSize, SIGNAL
 from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont, QStandardItem, QStandardItemModel
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
@@ -19,7 +19,7 @@ from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, 
 
 from steamswitcher import SteamSwitcher
 
-i18n = gettext.translation('main', localedir='locales', languages=['en','fi'])
+i18n = gettext.translation('main', localedir='locales', languages=['en_US'])
 _ = i18n.gettext
 
 #def _(a):
@@ -269,11 +269,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     import_accounts_list.resizeColumnToContents(0)
 
     def import_accounts():
-      uids = []
       selected_accounts = import_accounts_list.selectionModel().selectedRows()
       for account in selected_accounts:
         self.switcher.add_account(account.data(0))
-        #uids.append(account["uid"])
       self.steamapi_refresh()
       dialog.hide()
 
