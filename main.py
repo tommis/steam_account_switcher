@@ -217,10 +217,13 @@ class SteamAccountSwitcherGui(QMainWindow):
   @Slot()
   def steamapi_refresh(self, uids=None):
     print("Updating")
-    self.switcher.steam_skins = self.switcher.get_steam_skins()
-    self.switcher.update_steamuids()
-    self.switcher.get_steamapi_usersummary(uids)
-    self.load_accounts()
+    try:
+      self.switcher.steam_skins = self.switcher.get_steam_skins()
+      self.switcher.update_steamuids()
+      self.switcher.get_steamapi_usersummary(uids)
+      self.load_accounts()
+    except Exception as e:
+      self.tray_icon.showMessage("Something when wrong updating", str(e))
 
   @Slot()
   def import_accounts_dialog(self):
