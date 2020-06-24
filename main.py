@@ -87,7 +87,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     minimize_behaviour = QAction(_('Minimize'), after_login_behaviour_group, checkable=True, data="minimize")
     minimize_tray_behaviour = QAction(_('Minimize to tray'), after_login_behaviour_group, checkable=True, data="minimize_tray")
 
-    after_login_menu.addActions([nothing_behaviour,  close_behaviour, minimize_behaviour, minimize_tray_behaviour])
+    after_login_menu.addActions([nothing_behaviour, close_behaviour, minimize_behaviour, minimize_tray_behaviour])
 
     behaviour_switcher = {
       "close": lambda: close_behaviour.setChecked(True),
@@ -168,14 +168,18 @@ class SteamAccountSwitcherGui(QMainWindow):
     if self.switcher.settings.get("use_systemtray"):
       self.tray_icon.show()
     if self.switcher.first_run:
+      self.show()
       self.steamapi_key_dialog()
+    elif not self.switcher.first_run and \
+         not self.is_valid_steampi_key(self.switcher.settings["steam_api_key"]):
+      self.tray_icon.showMessage("No api key", "Set the steam web api key.")
 
   @Slot()
   def exit_app(self):
     self.tray_icon.hide()
     QApplication.quit()
 
-  def show_rightclick_menu(self, item):
+  def show_rightclick_menu(self):
     right_menu = QMenu()
 
     selected = self.accounts_list.currentItem()
@@ -294,6 +298,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.tray_icon = QSystemTrayIcon(QIcon("logo.png"))
     self.tray_menu = QMenu(parent)
 
+    self.tray_icon.setToolTip("Program to quickly switch between steam accounts")
     self.tray_icon.activated.connect(self.show)
     self.tray_menu.addMenu(self.settings_menu)
     self.tray_menu.addSeparator()
@@ -318,6 +323,11 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     dialog.show()
 
+  def is_valid_steampi_key(self, key):
+    if len(key) == 32:
+      return True
+    return False
+
   @Slot()
   def steamapi_key_dialog(self):
     dialog = QDialog()
@@ -338,10 +348,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     layout.addWidget(save_button)
 
     def save_enabled():
-      if len(apikey_edit.text()) == 32:
-        save_button.setEnabled(True)
-      else:
-        save_button.setEnabled(False)
+      save_button.setEnabled(self.is_valid_steampi_key(apikey_edit.text()))
 
     def save():
       self.switcher.settings["steam_api_key"] = apikey_edit.text()
@@ -438,7 +445,7 @@ class SteamAccountSwitcherGui(QMainWindow):
         steam_skin_select.setCurrentIndex(1)
 
     def submit_enabled(item):
-      if len(item) > 3:
+      if 3 < len(item) < 32:
         self.submit_button.setEnabled(True)
       else:
         self.submit_button.setEnabled(False)

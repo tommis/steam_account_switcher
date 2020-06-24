@@ -126,7 +126,7 @@ class SteamSwitcher:
   def get_steamapi_usersummary(self, uids: list = None, get_missing=False) -> dict:
     api_key = self.settings["steam_api_key"]
     if not api_key:
-      return
+      raise Exception("No steam_api_key defined")
     if not uids:
       if get_missing:
         uids = [ user.get("steam_uid") for user in self.settings["users"].values() if not user.get("steam_user")]
