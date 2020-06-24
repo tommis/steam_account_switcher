@@ -322,7 +322,10 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     def activated(reason):
       if reason == QSystemTrayIcon.Trigger:
-        print("yay")
+        if self.isVisible():
+          self.hide()
+        else:
+          self.show()
       else:
         populate_login_menu()
 
@@ -538,24 +541,23 @@ class SteamAccountSwitcherGui(QMainWindow):
       item.setData(3, account.get("comment"))
       item.setData(5, login_name)
       if size == "small":
-        display_text = sname
+        item.setData(2, sname)
         item.setData(13, QSize(0, 20))
         font.setPixelSize(12)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(20, 20))
       elif size == "medium":
-        display_text = sname + "\n" + account.get("comment") if account.get("comment") else sname
+        item.setData(2, sname + "\n" + account.get("comment") if account.get("comment") else sname)
         item.setData(13, QSize(0, 40))
         font.setPixelSize(14)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(40, 40))
       elif size == "large":
-        display_text = sname + "\n" + account.get("comment") if account.get("comment") else sname
+        item.setData(2, sname + "\n" + account.get("comment") if account.get("comment") else sname)
         item.setData(13, QSize(0, 60))
         font.setPixelSize(18)
         item.setFont(font)
         self.accounts_list.setIconSize(QSize(60, 60))
-      item.setData(2, display_text)
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 
