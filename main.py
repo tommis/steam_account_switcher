@@ -19,7 +19,7 @@ from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, 
 
 from steamswitcher import SteamSwitcher
 
-i18n = gettext.translation('main', localedir='locales', languages=['en_US'])
+i18n = gettext.translation('main', localedir='locales', languages=['en'])
 _ = i18n.gettext
 
 #def _(a):

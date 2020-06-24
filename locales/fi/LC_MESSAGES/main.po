@@ -3,178 +3,176 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-06-24 21:53+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2020-06-23 23:17+0300\n"
+"PO-Revision-Date: 2020-06-23 23:25+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fi\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.3.1\n"
 
 #: main.py:55
 msgid "File"
-msgstr ""
+msgstr "Tiedosto"
 
 #: main.py:56
 msgid "Settings"
-msgstr ""
+msgstr "Asetukset"
 
 #: main.py:57
 msgid "Size"
-msgstr ""
+msgstr "Koko"
 
 #: main.py:59
 msgid "Refresh"
-msgstr ""
+msgstr "Päivitä"
 
-#: main.py:60 main.py:231
+#: main.py:60 main.py:225
 msgid "Import accounts"
-msgstr ""
+msgstr "Tuo tilit"
 
 #: main.py:61
 msgid "Skins dir"
-msgstr ""
+msgstr "Teemat kansio"
 
 #: main.py:62
 msgid "About"
-msgstr ""
+msgstr "Tietoja"
 
-#: main.py:63 main.py:335
+#: main.py:63 main.py:300
 msgid "Exit"
-msgstr ""
+msgstr "Sulje"
 
-#: main.py:78 main.py:364
+#: main.py:78 main.py:324
 msgid "Set steamapi key"
-msgstr ""
+msgstr "Aseta steamapi avain"
 
 #: main.py:79
 msgid "Show avatars"
-msgstr ""
+msgstr "Näytä avatarit"
 
 #: main.py:80
 msgid "Use systemtray"
-msgstr ""
+msgstr "Näytä tehtäväpalkissa"
 
 #: main.py:82
 msgid "After login"
-msgstr ""
+msgstr "Kirjautumisen jälkeen"
 
 #: main.py:85
 msgid "Nothing"
-msgstr ""
+msgstr "Älä tee mitään"
 
-#: main.py:86 main.py:486
+#: main.py:86 main.py:449
 msgid "Close"
-msgstr ""
+msgstr "Sulje"
 
 #: main.py:87
-msgid "Minimize to taskbar"
-msgstr ""
+msgid "Minimize"
+msgstr "Pienennä"
 
 #: main.py:88
 msgid "Minimize to tray"
-msgstr ""
+msgstr "Pienennä tehtäväpalkkiin"
 
 #: main.py:116
 msgid "Small"
-msgstr ""
+msgstr "Pieni"
 
 #: main.py:117
 msgid "Medium"
-msgstr ""
+msgstr "Normaali"
 
 #: main.py:118
 msgid "Large"
-msgstr ""
+msgstr "Suuri"
 
-#: main.py:128 main.py:460
+#: main.py:128 main.py:423
 msgid "Add account"
-msgstr ""
+msgstr "Lisää tili"
 
 #: main.py:129
 msgid "Edit account"
-msgstr ""
+msgstr "Muokkaa tiliä"
+
+#: main.py:187
+msgid "Login"
+msgstr "Kirjaudu"
+
+#: main.py:188 main.py:431
+msgid "Edit"
+msgstr "Muokkaa"
+
+#: main.py:189
+msgid "Delete"
+msgstr "Poista"
 
 #: main.py:190
-msgid "Login"
-msgstr ""
-
-#: main.py:191 main.py:468
-msgid "Edit"
-msgstr ""
-
-#: main.py:192
-msgid "Delete"
-msgstr ""
-
-#: main.py:193
 msgid "Steam profile"
-msgstr ""
+msgstr "Steam-profiili"
 
-#: main.py:238
+#: main.py:232
 msgid "Select accounts to import"
-msgstr ""
+msgstr "Valitse tuotavat tilit"
 
-#: main.py:243 main.py:483
+#: main.py:237 main.py:446
 msgid "Login name"
-msgstr ""
+msgstr "Käyttäjänimi"
 
-#: main.py:243
+#: main.py:237
 msgid "Steam name"
-msgstr ""
+msgstr "Steam nimi"
 
-#: main.py:243
+#: main.py:237
 msgid "Steam UID"
-msgstr ""
+msgstr "Steam UID"
 
-#: main.py:280
+#: main.py:274
 msgid "Import {0} accounts"
-msgstr ""
+msgstr "Tuo {0} tiliä"
 
-#: main.py:302
-msgid "Program to quickly switch between steam accounts"
-msgstr ""
-
-#: main.py:304
-msgid "Login with"
-msgstr ""
-
-#: main.py:346
+#: main.py:311
 msgid ""
-"Steam account switcher<br>Author: Tommi Saira "
-"&lt;tommi@saira.fi&gt;<br>Url: <a "
-"href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>"
+"Steam account switcher<br>Author: Tommi Saira &lt;tommi@saira.fi&gt;<br>Url: "
+"<a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/"
+"steam_account_switcher</a>"
 msgstr ""
+"Steam account switcher<br>Tekijä: Tommi Saira &lt;tommi@saira.fi&gt;"
+"<br>Url:  <a href='https://github.com/tommis/steam_account_switcher'>github."
+"com/tommis/steam_account_switcher</a>"
 
-#: main.py:369
+#: main.py:329
 msgid ""
-"Used for getting avatars. Get yours from <a "
-"href='https://steamcommunity.com/dev/apikey'>steam</a>"
+"Used for getting avatars. Get yours from <a href='https://steamcommunity.com/"
+"dev/apikey'>steam</a>"
 msgstr ""
+"Käytetään avatarien hakemiseen. Saat omasi <a href='https://steamcommunity."
+"com/dev/apikey'>steamistä</a>"
 
-#: main.py:371
+#: main.py:331
 msgid "Save"
-msgstr ""
+msgstr "Tallenna"
 
-#: main.py:453
+#: main.py:416
 msgid "Comment"
-msgstr ""
+msgstr "Kommentti"
 
-#: main.py:461
+#: main.py:424
 msgid "Add"
-msgstr ""
+msgstr "Lisää"
 
-#: main.py:467
+#: main.py:430
 msgid "Edit account {0}"
-msgstr ""
+msgstr "Muokataan tiliä {0}"
 
-#: main.py:471
+#: main.py:434
 msgid "default"
-msgstr ""
-
+msgstr "oletus teema"
