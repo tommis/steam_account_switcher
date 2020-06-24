@@ -37,8 +37,8 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.setMinimumSize(300, 200)
     self.resize(300, 300)
 
-    switcher_logo = QIcon("logo.png")
-    self.setWindowIcon(switcher_logo)
+    self.switcher_logo = QIcon("logo.png")
+    self.setWindowIcon(self.switcher_logo)
     if platform.system() == "Windows":
       import ctypes
       win_appid = 'github.tommis.steam_account_switcher'
@@ -362,6 +362,7 @@ class SteamAccountSwitcherGui(QMainWindow):
   def steamapi_key_dialog(self):
     dialog = QDialog()
     dialog.setWindowTitle(_("Set steamapi key"))
+    dialog.setWindowIcon(self.switcher_logo)
 
     layout = QVBoxLayout()
     dialog.setLayout(layout)
