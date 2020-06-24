@@ -18,6 +18,7 @@ Remember to get your steamapi key from [steam](https://steamcommunity.com/dev/ap
 
 * Switch between steam account with only few clicks
 * No remembering passwords or typing authenticator codes
+* Set steam skins per account
 
 ## Command line usage
 
