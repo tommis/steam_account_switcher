@@ -82,9 +82,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     after_login_menu = QMenu(_("After login"))
 
     after_login_behaviour_group = QActionGroup(after_login_menu)
-    nothing_behaviour = QAction(_('Nothing'), after_login_behaviour_group, checkable=True, data="")
+    nothing_behaviour = QAction(_('Nothing'), after_login_behaviour_group, checkable=True, data="nothing")
     close_behaviour = QAction(_('Close'), after_login_behaviour_group, checkable=True, data="close")
-    minimize_behaviour = QAction(_('Minimize'), after_login_behaviour_group, checkable=True, data="minimize")
+    minimize_behaviour = QAction(_('Minimize to taskbar'), after_login_behaviour_group, checkable=True, data="minimize")
     minimize_tray_behaviour = QAction(_('Minimize to tray'), after_login_behaviour_group, checkable=True, data="minimize_tray")
 
     after_login_menu.addActions([nothing_behaviour, close_behaviour, minimize_behaviour, minimize_tray_behaviour])
@@ -156,12 +156,11 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.add_button.clicked.connect(lambda: self.account_dialog(True))
     self.edit_button.clicked.connect(lambda: self.account_dialog(False))
     self.accounts_list.itemSelectionChanged.connect(edit_button_enabled)
-    self.accounts_list.doubleClicked.connect(self.steam_login)
+    self.accounts_list.doubleClicked.connect(lambda: self.steam_login(self.accounts_list.currentIndex().data(5)))
     self.accounts_list.setContextMenuPolicy(Qt.CustomContextMenu)
     self.accounts_list.customContextMenuRequested.connect(self.show_rightclick_menu)
     #self.accounts_list.layoutChanged.connect(lambda: self.account_reordered)
     #self.accounts_list.dropEvent(self.dropEvent(QDropEvent))
-
 
     self.setCentralWidget(self.main_widget)
 
@@ -200,7 +199,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu.addSeparator()
     right_menu.addAction(open_profile_action)
 
-    login_action.triggered.connect(lambda: self.steam_login(selected))
+    login_action.triggered.connect(lambda: self.steam_login(login_name))
     edit_action.triggered.connect(lambda: self.account_dialog())
     delete_action.triggered.connect(lambda: self.remove_account(login_name))
     open_profile_action.triggered.connect(lambda: self.open_steam_profile(account))
@@ -251,7 +250,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     installed_accounts = self.switcher.settings.get("users").keys()
     disabled = []
     for uid, steam_user in self.switcher.load_loginusers().items():
-      account_row = [QStandardItem(steam_user.get("AccountName")), QStandardItem(steam_user.get("PersonaName")), QStandardItem(uid)]
+      account_row = [QStandardItem(steam_user.get("AccountName")),
+                     QStandardItem(steam_user.get("PersonaName")),
+                     QStandardItem(uid)]
       #account_row[0].setCheckable(True)
       account_row[2].setEnabled(False)
 
@@ -297,9 +298,34 @@ class SteamAccountSwitcherGui(QMainWindow):
   def systemtray(self, parent=None):
     self.tray_icon = QSystemTrayIcon(QIcon("logo.png"))
     self.tray_menu = QMenu(parent)
+    self.tray_icon.setToolTip(_("Program to quickly switch between steam accounts"))
 
-    self.tray_icon.setToolTip("Program to quickly switch between steam accounts")
-    self.tray_icon.activated.connect(self.show)
+    login_menu = QMenu(_("Login with"))
+    self.tray_menu.addMenu(login_menu)
+
+    def populate_login_menu():
+      login_menu.clear()
+      menu_accounts = []
+      accounts, avatars = self.load_accounts(no_populate=True)
+      if not accounts:
+        login_menu.setEnabled(False)
+      else:
+        login_menu.setEnabled(True)
+        for login_name, user in accounts:
+          menu_accounts.append(QAction(user.get("steam_name", login_name), self, data=str(login_name)))
+          menu_accounts[-1].setToolTip("Login with {0}".format(login_name))
+          if self.switcher.settings["show_avatars"]:
+            menu_accounts[-1].setIcon(QIcon(avatars.get(login_name, self.switcher.default_avatar)))
+          menu_accounts[-1].triggered.connect(lambda: self.steam_login(str(menu_accounts[-1].data()), True))
+        login_menu.addActions(menu_accounts)
+
+    def activated(reason):
+      if reason == QSystemTrayIcon.Trigger:
+        print("yay")
+      else:
+        populate_login_menu()
+
+    self.tray_icon.activated.connect(activated)
     self.tray_menu.addMenu(self.settings_menu)
     self.tray_menu.addSeparator()
     self.tray_menu.addAction(_("Exit"), self.exit_app)
@@ -477,21 +503,27 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.account_dialog_window.show()
 
   @Slot()
-  def steam_login(self, item):
+  def steam_login(self, login_name: str, ignore_after_login_behavior=False):
     self.switcher.kill_steam()
-    self.switcher.set_autologin_account(item.data(5))
+    self.switcher.set_autologin_account(login_name)
     self.switcher.start_steam()
-    if self.switcher.settings["behavior_after_login"] == "close":
-      self.exit_app()
-    elif self.switcher.settings["behavior_after_login"] == "minimize":
-      self.hide()
+    if not ignore_after_login_behavior:
+      if self.switcher.settings["behavior_after_login"] == "close":
+        self.exit_app()
+      elif self.switcher.settings["behavior_after_login"] == "minimize":
+        print("minimize to taskbar not implemented")
+        self.hide()
+      elif self.switcher.settings["behavior_after_login"] == "minimize_tray":
+        self.hide()
 
-
-  def load_accounts(self):
-    self.accounts_list.clear()
+  def load_accounts(self, no_populate=False):
     sorted_users = sorted(self.switcher.settings["users"].items(), key=lambda a: a[1]["display_order"])
     avatars = self.switcher.get_steam_avatars(list(self.switcher.settings["users"].keys()))
-    self.insert_accounts(sorted_users, avatars)
+    if not no_populate:
+      self.accounts_list.clear()
+      self.insert_accounts(sorted_users, avatars)
+    else:
+      return sorted_users, avatars
 
   def insert_accounts(self, sorted_users, avatars):
     size = self.switcher.settings.get("display_size", "small")

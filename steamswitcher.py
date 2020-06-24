@@ -77,7 +77,7 @@ class SteamSwitcher:
   def settings_write(self, new=False):
     empty_settings = {
       "steam_api_key": "",
-      "behavior_after_login": "minimize",
+      "behavior_after_login": "nothing",
       "theme": "dark",
       "display_size": "medium",
       "show_on_startup": True,
