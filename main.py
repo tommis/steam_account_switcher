@@ -196,8 +196,9 @@ class SteamAccountSwitcherGui(QMainWindow):
     delete_action = QAction(_("Delete"), self)
     open_profile_action = QAction(_("Steam profile"), self)
 
+    edit_action.setIcon(QIcon.fromTheme("document-edit"))
     delete_action.setIcon(QIcon.fromTheme("edit-delete"))
-    open_profile_action.setIcon(QIcon.fromTheme("document-open"))
+    open_profile_action.setIcon(QIcon.fromTheme("internet-web-browser"))
 
     right_menu.addActions([login_action, edit_action, delete_action])
     right_menu.addSeparator()
