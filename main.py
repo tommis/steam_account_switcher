@@ -8,7 +8,6 @@ import platform
 import logging
 import gettext
 
-from PySide2 import QtGui
 from PySide2.QtCore import Slot, QSize, SIGNAL
 from PySide2.QtGui import QIcon, QDropEvent, QCursor, Qt, QFont, QStandardItem, QStandardItemModel
 from PySide2.QtWidgets import (QAction, QApplication, QHeaderView, QHBoxLayout, QLabel, QLineEdit,
@@ -389,7 +388,8 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.switcher.settings["steam_api_key"] = apikey_edit.text()
       self.switcher.settings_write()
       dialog.hide()
-      self.import_accounts_dialog()
+      if self.switcher.first_run:
+        self.import_accounts_dialog()
 
     save_enabled()
 
