@@ -182,7 +182,11 @@ class SteamAccountSwitcherGui(QMainWindow):
     right_menu = QMenu()
 
     selected = self.accounts_list.currentItem()
-    if not selected:
+    if not self.accounts_list.selectedItems():
+      add_account_action = QAction(_("Add account"), self)
+      add_account_action.triggered.connect(lambda: self.account_dialog(True))
+      right_menu.addAction(add_account_action)
+      right_menu.exec_(QCursor.pos())
       return
     login_name = selected.data(5)
     account = self.switcher.settings["users"].get(login_name, {})
@@ -462,9 +466,9 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.submit_button = QPushButton(_("Add"))
       self.submit_button.setDisabled(True)
     else:
+
       login_name_selected = self.accounts_list.currentItem().data(5)
       user = self.switcher.settings["users"].get(login_name_selected, {})
-
       self.account_dialog_window.setWindowTitle(_("Edit account {0}").format(login_name_selected))
       self.submit_button = QPushButton(_("Edit"))
       account_name_edit.setText(login_name_selected)
