@@ -32,6 +32,7 @@ class SteamSwitcher:
   steam_skins: []
   default_avatar: str
   first_run: bool
+  args = {}
 
   def __init__(self):
     self.first_run = False
@@ -43,6 +44,9 @@ class SteamSwitcher:
       self.skins_dir = os.path.join(self.steam_linux_dir, "skins")
     self.steam_skins = self.get_steam_skins()
     self.default_avatar = os.path.join(self.changer_path, "avatars/avatar.png")
+    self.parser = argparse.ArgumentParser(prog='main.py',
+                               usage='%(prog)s [options]',
+                               description="Program to quickly switch between steam accounts.")
     self.parse()
 
   def _load_registry(self):
@@ -97,9 +101,12 @@ class SteamSwitcher:
       print("Settings file not found")
 
   def get_steam_skins(self) -> []:
-    l = [ f.name for f in os.scandir(self.skins_dir) if f.is_dir() ]
-    l.insert(0, "default")
-    return l
+    try:
+      l = [ f.name for f in os.scandir(self.skins_dir) if f.is_dir() ]
+      l.insert(0, "default")
+      return l
+    except FileNotFoundError as e:
+      print("Error: is steam installed? \n{0}".format(e))
 
 
   def kill_steam(self):
@@ -129,35 +136,21 @@ class SteamSwitcher:
       subprocess.Popen("/usr/bin/steam-runtime")
 
   def parse(self):
-    self.parser = argparse.ArgumentParser(prog='main.py',
-                                    usage='%(prog)s [options]',
-                                    description="Program to quickly switch between steam accounts.")
     self.parser.add_argument('-l', "--login", action="store", help='Login with account')
     self.parser.add_argument("--list", action="store_true", help='List accounts')
     self.parser.add_argument('-a', "--add", action="store", help='Add account')
     self.parser.add_argument('--delete', "--remove", action="store", help='Remove account')
     self.parser.add_argument('-s', "--settings", action="store", help='Modify settings')
     self.parser.add_argument("--set", action="store", help="Set settings value to")
+    self.parser.add_argument("--first-run", action="store_true", help="Run the first run wizard")
 
-    gui_group = self.parser.add_mutually_exclusive_group(required=True)
+    gui_group = self.parser.add_mutually_exclusive_group(required=False)
 
     gui_group.add_argument("--gui", action="store_true", help="Show gui")
     gui_group.add_argument("--no-gui", action="store_true", help="Don't show gui")
 
-    args = self.parser.parse_args()
+    self.args = self.parser.parse_args()
 
-    pp = pprint.PrettyPrinter(indent=2).pprint
-
-    if args.login:
-      self.kill_steam()
-      self.set_autologin_account(args.login)
-      self.start_steam()
-
-    if args.list:
-      pp(self.settings.get("users").keys())
-
-    if args.add:
-      self.add_account(args.add)
 
   def get_steamapi_usersummary(self, uids: list = None, get_missing=False) -> dict:
     api_key = self.settings["steam_api_key"]
@@ -183,7 +176,6 @@ class SteamSwitcher:
 
   def set_autologin_account(self, login_name):
     if login_name in self.settings["users"]:
-      #self.sync_steam_autologin_accounts()
       user = self.settings["users"][login_name]
       if self.system_os == "Windows":
         try:
@@ -306,3 +298,4 @@ class SteamSwitcher:
 
 if __name__ == "__main__":
     s = SteamSwitcher()
+    print(s.parser.print_help())

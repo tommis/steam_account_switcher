@@ -44,6 +44,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(win_appid)
 
     self.switcher = SteamSwitcher()
+    self.args = self.switcher.args
     self.main_widget = QWidget()
 
     if self.switcher.settings.get("show_on_startup", True):
@@ -164,8 +165,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     if self.switcher.settings.get("use_systemtray"):
       self.tray_icon.show()
-    if self.switcher.first_run:
-      self.show()
+    if self.switcher.first_run or self.args.first_run:
       self.steamapi_key_dialog()
     elif not self.switcher.first_run and \
          not self.is_valid_steampi_key(self.switcher.settings["steam_api_key"]):
