@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+import signal
 import subprocess
 import sys
 import webbrowser
@@ -32,6 +33,7 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   def __init__(self):
     QMainWindow.__init__(self)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     self.setWindowTitle("Steam Account Switcher")
     self.setMinimumSize(300, 200)
     self.resize(300, 300)
@@ -47,8 +49,10 @@ class SteamAccountSwitcherGui(QMainWindow):
     self.args = self.switcher.args
     self.main_widget = QWidget()
 
-    if self.switcher.settings.get("show_on_startup", True):
+    if self.args.gui or self.switcher.settings.get("show_on_startup", True) and not self.args.no_gui:
       self.show()
+    elif self.args.no_gui and self.args.no_tray:
+      self.exit_app()
 
     # Menu
     self.menu = self.menuBar()
@@ -163,8 +167,11 @@ class SteamAccountSwitcherGui(QMainWindow):
 
     self.setCentralWidget(self.main_widget)
 
-    if self.switcher.settings.get("use_systemtray"):
+    if self.args.no_tray:
+      print("test")
+    elif self.switcher.settings.get("use_systemtray") or self.args.tray:
       self.tray_icon.show()
+
     if self.switcher.first_run or self.args.first_run:
       self.steamapi_key_dialog()
     elif not self.switcher.first_run and \
@@ -513,9 +520,10 @@ class SteamAccountSwitcherGui(QMainWindow):
 
   @Slot()
   def steam_login(self, login_name: str, ignore_after_login_behavior=False):
-    self.switcher.kill_steam()
-    self.switcher.set_autologin_account(login_name)
-    self.switcher.start_steam()
+    try:
+      self.switcher.login_with(login_name)
+    except PermissionError:
+      self.tray_icon.showMessage("Permission error", "Are you running as administrator?")
     if not ignore_after_login_behavior:
       if self.switcher.settings["behavior_after_login"] == "close":
         self.exit_app()
@@ -579,5 +587,4 @@ if __name__ == "__main__":
 
   window = SteamAccountSwitcherGui()
 
-  # Execute application
-  sys.exit(app.exec_())
+  sys.exit(app.exec_()) # Execute application

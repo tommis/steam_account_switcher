@@ -32,7 +32,7 @@ class SteamSwitcher:
   steam_skins: []
   default_avatar: str
   first_run: bool
-  args = {}
+  stop: bool
 
   def __init__(self):
     self.first_run = False
@@ -44,10 +44,11 @@ class SteamSwitcher:
       self.skins_dir = os.path.join(self.steam_linux_dir, "skins")
     self.steam_skins = self.get_steam_skins()
     self.default_avatar = os.path.join(self.changer_path, "avatars/avatar.png")
-    self.parser = argparse.ArgumentParser(prog='main.py',
+    self.parser = argparse.ArgumentParser(prog='main.pyw',
                                usage='%(prog)s [options]',
                                description="Program to quickly switch between steam accounts.")
-    self.parse()
+    self.args = self.arg_setup()
+    self.parse(self.args)
 
   def _load_registry(self):
     self.system_os = platform.system()
@@ -108,6 +109,15 @@ class SteamSwitcher:
     except FileNotFoundError as e:
       print("Error: is steam installed? \n{0}".format(e))
 
+  def login_with(self, login_name, force=False):
+    try:
+      if login_name in self.settings["users"] or force:
+        self.kill_steam()
+        self.set_autologin_account(login_name)
+        self.start_steam()
+    except Exception as e:
+      print("Something went wrong. Are you running as administrator?\n{0}".format(e))
+      raise e
 
   def kill_steam(self):
     if self.system_os == "Linux":
@@ -123,8 +133,8 @@ class SteamSwitcher:
 
       try:
         os.kill(int(pid), signal.SIGTERM)
-      except PermissionError:
-        print("ERROR: no permission to kill steam on PID {0}".format(pid))
+      except PermissionError as e:
+        raise e
       except OSError:
         print("Steam not running on PID {0}".format(pid))
 
@@ -135,22 +145,37 @@ class SteamSwitcher:
     elif self.system_os == "Linux":
       subprocess.Popen("/usr/bin/steam-runtime")
 
-  def parse(self):
-    self.parser.add_argument('-l', "--login", action="store", help='Login with account')
+  def arg_setup(self):
+    self.parser.add_argument('-l', "--login", type=str, action="store", help='Login with account')
+    self.parser.add_argument('-fl', "--force-login", type=str, action="store", help='Login with account, no check')
     self.parser.add_argument("--list", action="store_true", help='List accounts')
-    self.parser.add_argument('-a', "--add", action="store", help='Add account')
-    self.parser.add_argument('--delete', "--remove", action="store", help='Remove account')
+    self.parser.add_argument('-a', "--add", type=str, action="store", help='Add account')
+    self.parser.add_argument('--delete', "--remove", type=str, action="store", help='Remove account')
     self.parser.add_argument('-s', "--settings", action="store", help='Modify settings')
     self.parser.add_argument("--set", action="store", help="Set settings value to")
     self.parser.add_argument("--first-run", action="store_true", help="Run the first run wizard")
 
     gui_group = self.parser.add_mutually_exclusive_group(required=False)
-
     gui_group.add_argument("--gui", action="store_true", help="Show gui")
     gui_group.add_argument("--no-gui", action="store_true", help="Don't show gui")
 
-    self.args = self.parser.parse_args()
+    tray_group = self.parser.add_mutually_exclusive_group(required=False)
+    tray_group.add_argument("--tray", action="store_true", help="Show  systemtray")
+    tray_group.add_argument("--no-tray", action="store_true", help="Don't show on systemtray")
 
+    return self.parser.parse_args()
+
+  def parse(self, args):
+    pp = pprint.PrettyPrinter(indent=2).pprint
+    if args.login and args.login in self.settings["users"]:
+      self.login_with(args.login)
+    elif args.force_login:
+      self.login_with(args.force_login, force=True)
+    elif args.login and args.login not in self.settings["users"]:
+      print("Login user not in settings file, ignoring...\nUse --force-login {0} instead".format(args.login))
+    if args.list:
+      pp(self.settings.get("users", "No installed users").keys())
+      self.stop = True
 
   def get_steamapi_usersummary(self, uids: list = None, get_missing=False) -> dict:
     api_key = self.settings["steam_api_key"]
@@ -175,20 +200,19 @@ class SteamSwitcher:
 
 
   def set_autologin_account(self, login_name):
-    if login_name in self.settings["users"]:
-      user = self.settings["users"][login_name]
-      if self.system_os == "Windows":
-        try:
-          winreg.SetValueEx(self.windows_HKCU_registry, "AutoLoginUser", 0, winreg.REG_SZ, login_name)
+    user = self.settings["users"].get(login_name)
+    if self.system_os == "Windows":
+      try:
+        winreg.SetValueEx(self.windows_HKCU_registry, "AutoLoginUser", 0, winreg.REG_SZ, login_name)
+        if user:
           winreg.SetValueEx(self.windows_HKCU_registry, "SkinV5", 0, winreg.REG_SZ, user.get("steam_skin", ""))
-        except PermissionError:
-          print("ERROR: Insufficient permission to set AutoLoginUser")
-      elif self.system_os == "Linux":
-        self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.AutoLoginUser", login_name)
+      except PermissionError:
+        print("ERROR: Insufficient permission to set AutoLoginUser")
+    elif self.system_os == "Linux":
+      self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.AutoLoginUser", login_name)
+      if user:
         self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.SkinV5", user.get("steam_skin", ""))
-        self.linux_registry.write_file(self.registry_path)
-    else:
-        raise ValueError
+      self.linux_registry.write_file(self.registry_path)
 
 
   def add_account(self, login_name, user = None, original_login_name = None):
@@ -276,4 +300,5 @@ class SteamSwitcher:
 
 if __name__ == "__main__":
     s = SteamSwitcher()
-    print(s.parser.print_help())
+    if not len(sys.argv) > 1:
+      s.parser.print_help()
