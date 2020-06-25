@@ -176,7 +176,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.steamapi_key_dialog()
     elif not self.switcher.first_run and \
          not self.is_valid_steampi_key(self.switcher.settings["steam_api_key"]):
-      self.tray_icon.showMessage("No api key", "Set the steam web api key.")
+      self.tray_icon.showMessage("No api key", "Set the steam web api key.", self.switcher_logo)
 
   @Slot()
   def exit_app(self):
@@ -233,7 +233,7 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.switcher.get_steamapi_usersummary(uids)
       self.load_accounts()
     except Exception as e:
-      self.tray_icon.showMessage("Something when wrong updating", str(e))
+      self.tray_icon.showMessage(_("ERROR"), _("Something when wrong updating \n{0}").format(str(e)), self.switcher_logo)
 
   @Slot()
   def import_accounts_dialog(self):
@@ -523,7 +523,7 @@ class SteamAccountSwitcherGui(QMainWindow):
     try:
       self.switcher.login_with(login_name)
     except PermissionError:
-      self.tray_icon.showMessage("Permission error", "Are you running as administrator?")
+      self.tray_icon.showMessage(_("Permission error"), _("Are you running as administrator?"), self.switcher_logo)
     if not ignore_after_login_behavior:
       if self.switcher.settings["behavior_after_login"] == "close":
         self.exit_app()

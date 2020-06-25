@@ -196,7 +196,7 @@ class SteamSwitcher:
         self.settings["users"][login_name] = user
       self.settings_write()
     else:
-      print("ERROR: downloading usersummaries")
+      raise Exception("ERROR: downloading usersummaries")
 
 
   def set_autologin_account(self, login_name):
