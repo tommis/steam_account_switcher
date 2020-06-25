@@ -143,7 +143,7 @@ class SteamSwitcher:
       steam_exe = winreg.QueryValueEx(self.windows_HKCU_registry, "STEAMEXE")[0]
       subprocess.Popen(steam_exe)
     elif self.system_os == "Linux":
-      subprocess.Popen("/usr/bin/steam-runtime")
+      subprocess.Popen("/usr/bin/steam-runtime", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   def arg_setup(self):
     self.parser.add_argument('-l', "--login", type=str, action="store", help='Login with account')
