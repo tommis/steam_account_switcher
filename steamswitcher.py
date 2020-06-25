@@ -3,9 +3,13 @@
 """
 A GUI program to quickly switch between many steam accounts for ~~Linux~~ (coming) and Windows.
 """
+import argparse
 import os
 import ntpath
+import pprint
 import signal
+import sys
+
 from PyVDF import PyVDF
 import json
 import platform
@@ -39,6 +43,7 @@ class SteamSwitcher:
       self.skins_dir = os.path.join(self.steam_linux_dir, "skins")
     self.steam_skins = self.get_steam_skins()
     self.default_avatar = os.path.join(self.changer_path, "avatars/avatar.png")
+    self.parse()
 
   def _load_registry(self):
     self.system_os = platform.system()
@@ -122,6 +127,37 @@ class SteamSwitcher:
       subprocess.Popen(steam_exe)
     elif self.system_os == "Linux":
       subprocess.Popen("/usr/bin/steam-runtime")
+
+  def parse(self):
+    self.parser = argparse.ArgumentParser(prog='main.py',
+                                    usage='%(prog)s [options]',
+                                    description="Program to quickly switch between steam accounts.")
+    self.parser.add_argument('-l', "--login", action="store", help='Login with account')
+    self.parser.add_argument("--list", action="store_true", help='List accounts')
+    self.parser.add_argument('-a', "--add", action="store", help='Add account')
+    self.parser.add_argument('--delete', "--remove", action="store", help='Remove account')
+    self.parser.add_argument('-s', "--settings", action="store", help='Modify settings')
+    self.parser.add_argument("--set", action="store", help="Set settings value to")
+
+    gui_group = self.parser.add_mutually_exclusive_group(required=True)
+
+    gui_group.add_argument("--gui", action="store_true", help="Show gui")
+    gui_group.add_argument("--no-gui", action="store_true", help="Don't show gui")
+
+    args = self.parser.parse_args()
+
+    pp = pprint.PrettyPrinter(indent=2).pprint
+
+    if args.login:
+      self.kill_steam()
+      self.set_autologin_account(args.login)
+      self.start_steam()
+
+    if args.list:
+      pp(self.settings.get("users").keys())
+
+    if args.add:
+      self.add_account(args.add)
 
   def get_steamapi_usersummary(self, uids: list = None, get_missing=False) -> dict:
     api_key = self.settings["steam_api_key"]
