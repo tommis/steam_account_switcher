@@ -273,28 +273,6 @@ class SteamSwitcher:
         r[login_name] = self.default_avatar
     return r
 
-  def sync_steam_autologin_accounts(self):
-    loginusers_path = os.path.join(self.steam_dir, "config/loginusers.vdf")
-    users = {"users": {}}
-    for login_name, user in self.settings["users"].items():
-      try:
-        users["users"][login_name] = {
-          "AccountName": login_name,
-          "PersonaName": user["steam_user"].get("personaname", ""),
-          "RememberPassword": "1",
-          "mostrecent": "0",
-          "Timestamp": str(int(time.time())),
-          "SkipOfflineModeWarning": "0",
-          "WantsOfflineMode": "0"
-        }
-      except KeyError:
-        print("No {0} in settings file".format(login_name))
-
-    # Use with?
-    new_vdf = PyVDF()
-    new_vdf.setData(users)
-    new_vdf.write_file(loginusers_path)
-
 
 if __name__ == "__main__":
     s = SteamSwitcher()
