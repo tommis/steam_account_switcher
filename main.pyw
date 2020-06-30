@@ -545,6 +545,12 @@ class SteamAccountSwitcherGui(QMainWindow):
   def insert_accounts(self, sorted_users, avatars):
     size = self.switcher.settings.get("display_size", "small")
     font = QFont()
+    def insert(name, qsize, font_size: int, icon_size):
+      item.setData(2, name)
+      item.setData(13, qsize)
+      font.setPixelSize(font_size)
+      item.setFont(font)
+      self.accounts_list.setIconSize(icon_size)
     for login_name, account in sorted_users:
       item = QListWidgetItem()
       item.setData(0, account)
@@ -554,23 +560,13 @@ class SteamAccountSwitcherGui(QMainWindow):
       item.setData(3, account.get("comment"))
       item.setData(5, login_name)
       if size == "small":
-        item.setData(2, sname)
-        item.setData(13, QSize(0, 20))
-        font.setPixelSize(12)
-        item.setFont(font)
-        self.accounts_list.setIconSize(QSize(20, 20))
+        insert(sname, QSize(0, 20), 12, QSize(20, 20))
       elif size == "medium":
-        item.setData(2, sname + "\n" + account.get("comment") if account.get("comment") else sname)
-        item.setData(13, QSize(0, 40))
-        font.setPixelSize(14)
-        item.setFont(font)
-        self.accounts_list.setIconSize(QSize(40, 40))
+        insert(sname + "\n" + account.get("comment") if account.get("comment") else sname,
+               QSize(0, 40), 14, QSize(40, 40))
       elif size == "large":
-        item.setData(2, sname + "\n" + account.get("comment") if account.get("comment") else sname)
-        item.setData(13, QSize(0, 60))
-        font.setPixelSize(18)
-        item.setFont(font)
-        self.accounts_list.setIconSize(QSize(60, 60))
+        insert(sname + "\n" + account.get("comment") if account.get("comment") else sname,
+               QSize(0, 60), 18, QSize(60, 60))
       self.accounts_list.addItem(item)
     #self.switcher.get_steamids()
 

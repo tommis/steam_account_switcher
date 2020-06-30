@@ -177,7 +177,7 @@ class SteamSwitcher:
       pp(self.settings.get("users", "No installed users").keys())
       self.stop = True
 
-  def get_steamapi_usersummary(self, uids: list = None, get_missing=False) -> dict:
+  def get_steamapi_usersummary(self, uids: list = None, get_missing=False):
     api_key = self.settings["steam_api_key"]
     if not api_key:
       raise Exception("No steam_api_key defined")
@@ -186,6 +186,7 @@ class SteamSwitcher:
         uids = [ user.get("steam_uid") for user in self.settings["users"].values() if not user.get("steam_user")]
       else:
         uids = [ user.get("steam_uid") for user in self.settings["users"].values() ]
+    self.settings["last_refreshed"] = str(int(time.time()))
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
     response = requests.get(api_url, params={"key": api_key, "steamids": ','.join(uids)})
     if response.status_code == 200 and response.json()["response"]["players"]:
@@ -261,9 +262,6 @@ class SteamSwitcher:
     for uid, user in loginusers.items():
       if not len(uid) == 17 and uid.isnumeric():
         raise Exception("UID: {0} doesn't seem like steam id".format(uid))
-      #if no_save:
-      #  self.y(uid, user)
-      #  continue
       if user["AccountName"] in self.settings["users"] and not no_save:
         self.settings["users"][user["AccountName"]]["steam_uid"] = uid
         self.settings["users"][user["AccountName"]]["steam_name"] = user["PersonaName"]
