@@ -473,7 +473,6 @@ class SteamAccountSwitcherGui(QMainWindow):
       self.submit_button = QPushButton(_("Add"))
       self.submit_button.setDisabled(True)
     else:
-
       login_name_selected = self.accounts_list.currentItem().data(5)
       user = self.switcher.settings["users"].get(login_name_selected, {})
       self.account_dialog_window.setWindowTitle(_("Edit account {0}").format(login_name_selected))
@@ -501,10 +500,10 @@ class SteamAccountSwitcherGui(QMainWindow):
     dialog_layout.addWidget(comment_edit)
     dialog_layout.addWidget(steam_skin_select)
 
-    def update_user(user: dict) -> dict:
-      user["comment"] = comment_edit.text()
-      user["steam_skin"] = steam_skin_select.currentText()
-      return user
+    def update_user(u: dict) -> dict:
+      u["comment"] = comment_edit.text()
+      u["steam_skin"] = steam_skin_select.currentText()
+      return u
 
     self.submit_button.clicked.connect(lambda:self.save_account(account_name_edit.text(),
                                                                 update_user(user), login_name_selected if not new_account else None))
