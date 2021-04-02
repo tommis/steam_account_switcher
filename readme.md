@@ -32,10 +32,12 @@ Flags  (TODO)
 * `-list`
 * `-about`
 
+#[wiki](https://github.com/tommis/steam_account_switcher/wiki)
+
 ## TODO
 
 - [ ] Command line interface
-- [ ] Linux
+- [X] Linux
 - [ ] Code refactoring
 - [ ] Actually check something with tests
 - [ ] Status bar
