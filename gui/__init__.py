@@ -40,7 +40,7 @@ class SteamAccountSwitcherGui(QMainWindow, Accounts, DialogAccount, DialogImport
 
   def __init__(self):
     QMainWindow.__init__(self)
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    signal.signal(signal.SIGINT, self.exit_app)
     self.setWindowTitle("Steam Account Switcher")
     self.setMinimumSize(300, 200)
     self.resize(300, 300)
@@ -64,11 +64,10 @@ class SteamAccountSwitcherGui(QMainWindow, Accounts, DialogAccount, DialogImport
     elif self.args.no_gui and self.args.no_tray:
       self.exit_app()
 
-    # Menu
-    self.menu = self.menuBar()
-    self.file_menu = self.menu.addMenu(_("File"))
-    self.settings_menu = self.menu.addMenu(_("Settings"))
-    self.size_menu = self.menu.addMenu(_("Size"))
+    self.menu_bar = self.menuBar()
+    self.file_menu = self.menu_bar.addMenu(_("File"))
+    self.settings_menu = self.menu_bar.addMenu(_("Settings"))
+    self.size_menu = self.menu_bar.addMenu(_("Size"))
 
     refresh_action = QAction(_("Refresh"), self)
     import_action = QAction(_("Import accounts"), self)
