@@ -3,6 +3,7 @@ from PySide2.QtWidgets import QSystemTrayIcon, QMenu, QAction
 
 from _i18n import _
 
+from topbar import TopBar
 
 class SystemTray:
   tray_icon: QSystemTrayIcon
@@ -18,8 +19,8 @@ class SystemTray:
       self.tray_icon.hide()
 
   def systemtray(self, parent=None):
-    self.tray_icon = QSystemTrayIcon(QIcon("logo.png"))
     self.tray_menu = QMenu(parent)
+    self.tray_icon = QSystemTrayIcon(QIcon("logo.png"))
     self.tray_icon.setToolTip(_("Program to quickly switch between steam accounts"))
 
     login_menu = QMenu(_("Login with"))
@@ -42,6 +43,10 @@ class SystemTray:
         login_menu.addActions(menu_accounts)
 
     def activated(reason):
+      self.tray_menu.addMenu(TopBar.settings_menu)
+      self.tray_menu.addSeparator()
+      self.tray_menu.addAction(_("Exit"), self.exit_app)
+      self.tray_icon.setContextMenu(self.tray_menu)
       if reason == QSystemTrayIcon.Trigger:
         if self.isVisible():
           self.hide()
@@ -51,7 +56,3 @@ class SystemTray:
         populate_login_menu()
 
     self.tray_icon.activated.connect(activated)
-    self.tray_menu.addMenu(self.settings_menu)
-    self.tray_menu.addSeparator()
-    self.tray_menu.addAction(_("Exit"), self.exit_app)
-    self.tray_icon.setContextMenu(self.tray_menu)

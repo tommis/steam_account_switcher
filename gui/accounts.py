@@ -20,6 +20,10 @@ class Accounts:
   def account_reordered(self, account):
     print(account)
 
+  def dropEvent(self, event):
+    print("hallo")
+
+
   def save_account(self, login_name, user, original_login_name = None):
     self.switcher.add_account(login_name, user, original_login_name)
 
