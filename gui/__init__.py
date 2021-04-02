@@ -30,9 +30,10 @@ from dialog_account import DialogAccount
 from dialog_import_accounts import DialogImportAccount
 from dialog_steamapi_key import DialogSteamapiKey
 from rightclick_menu import RightClickMenu
+from settings import Settings
 from systemtray import SystemTray
 
-class SteamAccountSwitcherGui(QMainWindow, Accounts, DialogAccount, DialogImportAccount, DialogSteamapiKey, SystemTray):
+class SteamAccountSwitcherGui(QMainWindow, Accounts, DialogAccount, DialogImportAccount, DialogSteamapiKey, Settings, SystemTray):
   account_dialog_window: QDialog
   submit_button: QPushButton
   tray_menu: QMenu
@@ -209,20 +210,6 @@ class SteamAccountSwitcherGui(QMainWindow, Accounts, DialogAccount, DialogImport
 
   def dropEvent(self, event):
     print("hallo")
-
-  def set_show_avatars(self):
-    self.switcher.settings["show_avatars"] = not self.switcher.settings.get("show_avatars")
-    self.switcher.settings_write()
-    self.load_accounts()
-
-  def set_after_login_action(self, item):
-    self.switcher.settings["behavior_after_login"] = item.data()
-    self.switcher.settings_write()
-
-  def set_size(self, size):
-    self.switcher.settings["display_size"] = size
-    self.switcher.settings_write()
-    self.load_accounts()
 
   def set_stay_on_top(self):
     pass
