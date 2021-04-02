@@ -55,10 +55,6 @@ class SteamAccountSwitcherGui(QMainWindow, Accounts, DialogAccount, DialogImport
 
     from steamswitcher import SteamSwitcher
 
-    import gui.rightclick_menu
-    import gui.systemtray
-
-
     self.switcher = SteamSwitcher()
     self.args = self.switcher.args
     self.main_widget = QWidget()
