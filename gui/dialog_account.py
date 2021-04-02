@@ -3,7 +3,9 @@ from PySide2.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QComboBox, QPushB
 from _i18n import _
 
 
-class DialogAccount():
+class DialogAccount:
+  account_dialog_window: QDialog
+
   def account_dialog(self, new_account=False):
     self.account_dialog_window = QDialog(self)
     self.account_dialog_window.setMinimumSize(300, 125)

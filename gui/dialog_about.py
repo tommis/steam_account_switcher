@@ -4,6 +4,8 @@ from _i18n import _
 
 
 class DialogAbout:
+  about_dialog: QDialog
+
   def about_dialog(self):
     self.about_dialog = QDialog(self)
     self.about_dialog.setWindowTitle("About")
