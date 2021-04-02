@@ -44,8 +44,8 @@ class SteamSwitcher:
       self.skins_dir = os.path.join(self.steam_linux_dir, "skins")
     self.steam_skins = self.get_steam_skins()
     self.default_avatar = os.path.join(self.changer_path, "avatars/avatar.png")
-    self.parser = argparse.ArgumentParser(prog='main.pyw',
-                               usage='%(prog)s [options]',
+    self.parser = argparse.ArgumentParser(prog="main.pyw",
+                               usage="%(prog)s [options]",
                                description="Program to quickly switch between steam accounts.")
     self.args = self.arg_setup()
     self.parse(self.args)
@@ -74,7 +74,7 @@ class SteamSwitcher:
     self.changer_path = os.getcwd()
     self.settings_file = os.path.join(self.changer_path, "settings.json")
     try:
-      with open(self.settings_file, encoding='utf-8') as settings_file:
+      with open(self.settings_file, encoding="utf-8") as settings_file:
         return json.load(settings_file)
     except FileNotFoundError:
       print("Settings file not found, creating...")
@@ -96,7 +96,7 @@ class SteamSwitcher:
       "users": {}
     }
     try:
-      with open(self.settings_file, "w", encoding='utf-8') as settings_file:
+      with open(self.settings_file, "w", encoding="utf-8") as settings_file:
         json.dump(empty_settings if new else self.settings, settings_file, indent=2, ensure_ascii=False)
     except FileNotFoundError:
       print("Settings file not found")
@@ -146,12 +146,12 @@ class SteamSwitcher:
       subprocess.Popen("/usr/bin/steam-runtime", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
   def arg_setup(self):
-    self.parser.add_argument('-l', "--login", type=str, action="store", help='Login with account')
-    self.parser.add_argument('-fl', "--force-login", type=str, action="store", help='Login with account, no check')
-    self.parser.add_argument("--list", action="store_true", help='List accounts')
-    self.parser.add_argument('-a', "--add", type=str, action="store", help='Add account')
-    self.parser.add_argument('--delete', "--remove", type=str, action="store", help='Remove account')
-    self.parser.add_argument('-s', "--settings", action="store", help='Modify settings')
+    self.parser.add_argument("-l", "--login", type=str, action="store", help="Login with account")
+    self.parser.add_argument("-fl", "--force-login", type=str, action="store", help="Login with account, no check")
+    self.parser.add_argument("--list", action="store_true", help="List accounts")
+    self.parser.add_argument("-a", "--add", type=str, action="store", help="Add account")
+    self.parser.add_argument("--delete", "--remove", type=str, action="store", help="Remove account")
+    self.parser.add_argument("-s", "--settings", action="store", help="Modify settings")
     self.parser.add_argument("--set", action="store", help="Set settings value to")
     self.parser.add_argument("--first-run", action="store_true", help="Run the first run wizard")
 
@@ -173,9 +173,16 @@ class SteamSwitcher:
       self.login_with(args.force_login, force=True)
     elif args.login and args.login not in self.settings["users"]:
       print("Login user not in settings file, ignoring...\nUse --force-login {0} instead".format(args.login))
+
     if args.list:
       pp(self.settings.get("users", "No installed users").keys())
       self.stop = True
+
+    if args.delete:
+      if args.delete in self.settings["users"]:
+        self.delete_account(args.delete)
+      else:
+        print("User {0} not in settings file".format(args.delete))
 
   def get_steamapi_usersummary(self, uids: list = None, get_missing=False):
     api_key = self.settings["steam_api_key"]
@@ -188,7 +195,7 @@ class SteamSwitcher:
         uids = [ user.get("steam_uid") for user in self.settings["users"].values() ]
     self.settings["last_refreshed"] = str(int(time.time()))
     api_url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002"
-    response = requests.get(api_url, params={"key": api_key, "steamids": ','.join(uids)})
+    response = requests.get(api_url, params={"key": api_key, "steamids": ",".join(uids)})
     if response.status_code == 200 and response.json()["response"]["players"]:
       for steam_user in response.json()["response"]["players"]:
         login_name, user = [ (login_name, user) for (login_name, user) in self.settings["users"].items() if user.get("steam_uid") == steam_user["steamid"] ][0]
@@ -215,11 +222,18 @@ class SteamSwitcher:
         self.linux_registry.edit("Registry.HKCU.Software.Valve.Steam.SkinV5", user.get("steam_skin", ""))
       self.linux_registry.write_file(self.registry_path)
 
+  def set_account_localconfig(self, uid):
+    def convert_uid(uid: str) -> str:
+      return "asd"
+
+    localconfig_path = os.path.join(self.steam_dir, "userdata", convert_uid(uid), "localconfig.vdf")
+
+    print(localconfig_path)
 
   def add_account(self, login_name, user = None, original_login_name = None):
     if not user:
       user = {}
-    skin = user.get("steam_skin", "default")
+    skin = user.get("steam_skin")
     user = {
       "comment": user.get("comment", ""),
       "display_order": len(self.settings["users"].keys()) + 1,
@@ -237,6 +251,7 @@ class SteamSwitcher:
       self.settings["users"].pop(original_login_name)
 
     self.settings["users"][login_name] = user
+    self.set_account_localconfig(user["steam_uid"])
 
     print("Saving {0} account".format(login_name))
     self.settings_write()
@@ -251,7 +266,7 @@ class SteamSwitcher:
     else:
       loginusers_path = os.path.join(self.steam_linux_dir, "config/loginusers.vdf")
     try:
-      with open(loginusers_path, encoding='utf-8') as loginusers_file:
+      with open(loginusers_path, encoding="utf-8") as loginusers_file:
         return PyVDF(infile=loginusers_file).getData()["users"]
     except Exception as e:
       print("loginusers.vdf load error\n{0}".format(e))
@@ -297,6 +312,6 @@ class SteamSwitcher:
 
 
 if __name__ == "__main__":
-    s = SteamSwitcher()
+    steam_switcher = SteamSwitcher()
     if not len(sys.argv) > 1:
-      s.parser.print_help()
+      steam_switcher.parser.print_help()
