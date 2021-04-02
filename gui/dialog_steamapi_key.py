@@ -3,6 +3,8 @@ from PySide2.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButt
 from _i18n import _
 
 class DialogSteamapiKey:
+    steamapi_window: QDialog
+
     def is_valid_steampi_key(self, key):
         if len(key) == 32:
             return True

@@ -60,7 +60,7 @@ class DialogAccount():
       u["steam_skin"] = steam_skin_select.currentText()
       return u
 
-    self.submit_button.clicked.connect(lambda:self.save_account(account_name_edit.text(),
+    self.submit_button.clicked.connect(lambda: self.save_account(account_name_edit.text(),
                                                                 update_user(user), login_name_selected if not new_account else None))
     close_button.clicked.connect(self.account_dialog_window.close)
 
