@@ -6,6 +6,16 @@ from _i18n import _
 
 class SystemTray:
     tray_icon: QSystemTrayIcon
+    tray_menu: QMenu
+
+    def set_use_systemtray(self):
+        use_systemtray = not self.switcher.settings.get("use_systemtray")
+        self.switcher.settings["use_systemtray"] = use_systemtray
+        self.switcher.settings_write()
+        if use_systemtray:
+            self.tray_icon.show()
+        else:
+            self.tray_icon.hide()
 
     def systemtray(self, parent=None):
         self.tray_icon = QSystemTrayIcon(QIcon("logo.png"))

@@ -224,15 +224,6 @@ class SteamAccountSwitcherGui(QMainWindow, DialogAccount, DialogImportAccount, D
     self.switcher.settings_write()
     self.load_accounts()
 
-  def set_use_systemtray(self):
-    use_systemtray = not self.switcher.settings.get("use_systemtray")
-    self.switcher.settings["use_systemtray"] = use_systemtray
-    self.switcher.settings_write()
-    if use_systemtray:
-      self.tray_icon.show()
-    else:
-      self.tray_icon.hide()
-
   def set_after_login_action(self, item):
     self.switcher.settings["behavior_after_login"] = item.data()
     self.switcher.settings_write()
