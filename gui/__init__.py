@@ -24,6 +24,7 @@ else:
 
 from _i18n import _
 
+from dialog_about import DialogAbout
 from dialog_account import DialogAccount
 from dialog_import_accounts import DialogImportAccount
 from rightclick_menu import RightClickMenu
@@ -79,7 +80,7 @@ class SteamAccountSwitcherGui(QMainWindow, DialogAccount, DialogImportAccount, S
     refresh_action.triggered.connect(self.steamapi_refresh)
     import_action.triggered.connect(lambda: DialogImportAccount.import_accounts_dialog(self))
     open_skinsdir_action.triggered.connect(self.open_skinsdir)
-    about_action.triggered.connect(self.about_dialog)
+    about_action.triggered.connect(lambda: DialogAbout.about_dialog(self))
     exit_action.triggered.connect(self.exit_app)
 
     refresh_action.setShortcut("F5")
@@ -195,7 +196,6 @@ class SteamAccountSwitcherGui(QMainWindow, DialogAccount, DialogImportAccount, S
     self.tray_icon.hide()
     QApplication.quit()
 
-
   def open_steam_profile(self, account, ):
     webbrowser.open(account["steam_user"].get("profileurl"))
 
@@ -215,27 +215,11 @@ class SteamAccountSwitcherGui(QMainWindow, DialogAccount, DialogImportAccount, S
     elif self.switcher.system_os == "Linux":
         subprocess.Popen(["xdg-open", self.switcher.skins_dir])
 
-  def about_dialog(self):
-    self.about_dialog = QDialog(self)
-    self.about_dialog.setWindowTitle("About")
-
-    layout = QVBoxLayout()
-    self.about_dialog.setLayout(layout)
-
-    text_label = QLabel(_("Steam account switcher<br>"
-                          "Author: Tommi Saira &lt;tommi@saira.fi&gt;<br>"
-                          "Url: <a href='https://github.com/tommis/steam_account_switcher'>github.com/tommis/steam_account_switcher</a>"))
-
-    text_label.setOpenExternalLinks(True)
-
-    layout.addWidget(text_label)
-
-    self.about_dialog.show()
 
   def is_valid_steampi_key(self, key):
-    if len(key) == 32:
-      return True
-    return False
+      if len(key) == 32:
+          return True
+      return False
 
   def steamapi_key_dialog(self):
     self.steamapi_window = QDialog()
