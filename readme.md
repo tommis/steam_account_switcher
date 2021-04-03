@@ -32,7 +32,7 @@ Flags  (TODO)
 * `-list`
 * `-about`
 
-#[wiki](https://github.com/tommis/steam_account_switcher/wiki)
+## [wiki](https://github.com/tommis/steam_account_switcher/wiki)
 
 ## TODO
 
