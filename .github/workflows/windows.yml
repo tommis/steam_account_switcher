@@ -18,14 +18,10 @@ jobs:
       with:
         python-version: 3.9
     - name: Install dependencies
-      shell: pwsh
+      shell: bash
       run: |
         python -m pip install --upgrade pip
-        if (Get-Item -Path 'requirements.txt' -ErrorAction Ignore) {
-          pip install -r requirements.txt
-        } catch {
-          echo error
-        }
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
