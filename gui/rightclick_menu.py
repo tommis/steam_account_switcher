@@ -1,7 +1,8 @@
 from PySide2.QtGui import QCursor, QIcon
 from PySide2.QtWidgets import QMenu, QAction, QActionGroup
 
-from _i18n import _
+from ._i18n import _
+
 
 class RightClickMenu:
     def show_rightclick_menu(self):

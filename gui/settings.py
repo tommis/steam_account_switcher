@@ -1,4 +1,4 @@
-from _i18n import _
+from ._i18n import _
 
 class Settings:
   def set_show_avatars(self):

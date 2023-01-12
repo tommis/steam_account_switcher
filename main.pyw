@@ -7,9 +7,9 @@ from PySide2.QtWidgets import QApplication
 import gui
 
 if __name__ == "__main__":
-  app = QApplication(sys.argv)
-  app.setQuitOnLastWindowClosed(False)
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)
 
-  window = gui.SteamAccountSwitcherGui()
+    window = gui.SteamAccountSwitcherGui()
 
-  sys.exit(app.exec_()) # Execute application
+    sys.exit(app.exec_())  # Execute application
