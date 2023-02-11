@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-A GUI program to quickly switch between many steam accounts for ~~Linux~~ (coming) and Windows.
+A GUI program to quickly switch between many steam accounts for Linux and Windows.
 """
 import argparse
 import os
